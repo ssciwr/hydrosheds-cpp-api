@@ -1,6 +1,5 @@
-This is the list of copyright holders of HydroShed C++ API.
+This is the list of copyright holders of HydroSheds C++ API.
 
 For information on the license, see LICENSE.md.
 
-
-* Dominic Kempf, 2020
+* Dominic Kempf, 2021

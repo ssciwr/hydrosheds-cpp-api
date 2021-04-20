@@ -1,10 +1,8 @@
-HydroShed C++ API
-==============================
+HydroSheds C++ API
+==================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-This is an example function:
-
-.. doxygenfunction:: hydroshedscppapi::add_one
+This is where we will write our documentation!

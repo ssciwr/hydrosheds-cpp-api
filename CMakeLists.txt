@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 
 # Set a name and a version number for your project:
-project(hydrosheds-cpp-api VERSION 0.0.1 LANGUAGES CXX)
+project(hydrosheds VERSION 0.0.1 LANGUAGES CXX)
 
 # Initialize some default paths
 include(GNUInstallDirs)
@@ -10,10 +10,11 @@ include(GNUInstallDirs)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-
 # Compilation options
 set(BUILD_DOCS ON CACHE BOOL "Enable building of documentation")
+
+# Look for upstream dependencies
+find_package(GDAL REQUIRED)
 
 # compile the library
 add_subdirectory(src)
@@ -36,17 +37,17 @@ endif()
 
 # Install targets and configuration
 install(
-  TARGETS hydrosheds-cpp-api
-  EXPORT hydrosheds-cpp-api-config
+  TARGETS hydrosheds
+  EXPORT hydrosheds-config
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 install(
-  EXPORT hydrosheds-cpp-api-config
-  NAMESPACE hydrosheds-cpp-api::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/hydrosheds-cpp-api
+  EXPORT hydrosheds-config
+  NAMESPACE hydrosheds::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/hydrosheds
 )
 
 install(

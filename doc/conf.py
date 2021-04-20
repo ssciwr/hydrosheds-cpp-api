@@ -20,8 +20,6 @@ import subprocess
 # -- Project information -----------------------------------------------------
 
 project = 'hydrosheds-cpp-api'
-copyright = '2020, Dominic Kempf'
-author = 'Dominic Kempf'
 
 # The full version, including alpha/beta/rc tags
 release = '0.0.1'
