@@ -9,6 +9,5 @@ submodules:
   include: all
   recursive: true
 
-python:
-  install:
-    - requirements: doc/requirements-rtd.txt
+conda:
+  environment: doc/environment-rtd.yml
