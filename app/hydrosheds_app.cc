@@ -1,4 +1,4 @@
-#include "hydrosheds/hydrosheds.hh"
+#include "/Users/anirudh/Documents/Internship (Hydro)/hydrosheds-cpp-api/include/hydrosheds/hydrosheds.hh"
 
 #include "ogrsf_frmts.h"
 
@@ -23,13 +23,34 @@ int main(int argc, char** argv)
       return 1;
   }
 
-  std::cout << "Layer count in GeoDataBase: " << data->GetLayerCount() << std::endl;
+  OGRLayer *layer;
+  OGRFeature *feature;
 
-  // Extract the first layer
-  auto layer = data->GetLayer(0);
+  layer = data->GetLayer(0);
 
-  // Extract first feature
-  auto feature = layer->GetNextFeature();
+
+  // Extract layers
+  for(auto&& oField: *(layer->GetNextFeature()))
+{
+    switch(oField.GetType())
+    {
+        case OFTInteger:
+            printf( "%d,", oField.GetInteger() );
+            break;
+        case OFTInteger64:
+            printf( CPL_FRMT_GIB ",", oField.GetInteger64() );
+            break;
+        case OFTReal:
+            printf( "%.3f,", oField.GetDouble() );
+            break;
+        case OFTString:
+            printf( "%s,", oField.GetString() );
+            break;
+        default:
+            printf( "%s,", oField.GetAsString() );
+            break;
+    }
+}
 
   return 0;
 }
