@@ -1,4 +1,4 @@
-#include "/Users/anirudh/Documents/Internship (Hydro)/hydrosheds-cpp-api/include/hydrosheds/hydrosheds.hh"
+#include "hydrosheds/hydrosheds.hh"
 
 #include "ogrsf_frmts.h"
 
