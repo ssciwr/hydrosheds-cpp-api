@@ -43,9 +43,9 @@ namespace hydrosheds {
     private:
     friend class HydroshedsDataSet;
 
-    RiverSegment(OGRFeature*, unsigned int);
+    RiverSegment(OGRLayer*, OGRFeature*);
+    OGRLayer* layer;
     OGRFeature* feature;
-    unsigned int segment;
   };
 
 } // namespace hydrosheds

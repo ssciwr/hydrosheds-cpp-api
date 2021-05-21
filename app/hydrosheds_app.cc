@@ -10,8 +10,13 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  hydrosheds::HydroshedsDataSet dataset(std::string(argv[1]));
-  //std::cout << dataset.getSegment().getLength() << std::endl;
+  // Instantiate the data set
+  hydrosheds::HydroshedsDataSet dataset(argv[1]);
+
+  // Printing some example data
+  auto segment = dataset.getSegment();
+  auto start = segment.getDownstreamSegment().getStartingPoint();
+  std::cout << start[0] << " " << start[1] << std::endl;
 
   return 0;
 }
