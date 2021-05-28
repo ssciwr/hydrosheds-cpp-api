@@ -47,38 +47,55 @@ namespace hydrosheds {
     return feature->GetFieldAsDouble("DIS_AV_CMS");
   }
 
-  Coordinate RiverSegment::getStartingPoint() const
+  OGRLineString* getLineString(OGRFeature* feature)
   {
-    // Get the most specific GDAL object that we can find that represents our curve
     OGRGeometry* geo = feature->GetGeometryRef();
     OGRMultiLineString* multiline = geo->toMultiLineString();
     OGRLineString* line = *(multiline->begin());
+    return line;
+  }
 
+  Coordinate RiverSegment::getStartingPoint() const
+  {
     // Extract the curve start point
     OGRPoint start;
-    line->StartPoint(&start);
+    getLineString(feature)->StartPoint(&start);
 
     return Coordinate{start.getX(), start.getY()};
   }
 
   Coordinate RiverSegment::getEndPoint() const
   {
-    // TODO: TASK
+    // Extract the curve start point
+    OGRPoint end;
+    getLineString(feature)->EndPoint(&end);
+
+    return Coordinate{end.getX(), end.getY()};
   }
 
   bool RiverSegment::hasDownstreamSegment() const
   {
-    // TODO: TASK
+    // If the NEXT_DOWN field is 0, there is no downstream segment
+    if (feature->GetFieldAsInteger("NEXT_DOWN") == 0)
+      return false;
+
+    // If the ENDORHEIC field is 1, there is also no downstream segment
+    // TODO: This is my limited understanding - might need to rethink
+    if (feature->GetFieldAsInteger("ENDORHEIC") == 1)
+      return false;
+
+    // In all other cases, there is a downstream segment;
+    return true;
   }
 
   double RiverSegment::getLength() const
   {
-    // TODO: TASK
+    return getLineString(feature)->get_Length();
   }
 
   double RiverSegment::getGeologicalLength() const
   {
-    // TODO: TASK
+    return feature->GetFieldAsDouble("LENGTH_KM");
   }
 
 } // namespace hydrosheds
