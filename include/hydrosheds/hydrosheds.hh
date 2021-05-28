@@ -10,13 +10,18 @@ namespace hydrosheds {
   using Coordinate = std::array<double, 2>;
   using HydroshedsID = int;
 
-  // Forward declaration
+  // Forward declarations
   class RiverSegment;
+  class FullDatasetRiverSegmentIterator;
 
   class HydroshedsDataSet
   {
     public:
     HydroshedsDataSet(const std::string&);
+
+    // Iterator access
+    FullDatasetRiverSegmentIterator begin() const;
+    FullDatasetRiverSegmentIterator end() const;
 
     // Not intended to stay - just get some segment
     RiverSegment getSegment() const;
@@ -46,6 +51,12 @@ namespace hydrosheds {
     RiverSegment(OGRLayer*, OGRFeature*);
     OGRLayer* layer;
     OGRFeature* feature;
+  };
+
+  class FullDatasetRiverSegmentIterator
+  {
+    // TODO: Add the iterator interface for an iterator that traverses
+    //       the entire dataset and gives access to RiverSegment
   };
 
 } // namespace hydrosheds
