@@ -1,4 +1,4 @@
-#include "hydrosheds/hydrosheds.hh"
+#include "/Users/anirudh/Documents/Internship (Hydro)/hydrosheds-cpp-api/include/hydrosheds/hydrosheds.hh"
 
 #include "ogrsf_frmts.h"
 
@@ -59,10 +59,26 @@ void RiverSegment::test_geometry() const
 {
     OGRGeometry* G;
     G = feature->GetGeometryRef();
-    std::cout << "Number of geometrical attributes: " << feature->GetGeomFieldCount() << std::endl;
-    std::cout << G->getGeometryName() << std::endl;
-    std::cout << G->getDimension() << std::endl;
-    OGRGeometry* GLine = G->getLinearGeometry();
+    std::cout << "Number of geometrical attributes: " 
+              << feature->GetGeomFieldCount() << std::endl;
+    // std::cout << G->getGeometryName() << std::endl;
+    // std::cout << G->getDimension() << std::endl;
+    OGRMultiLineString* GLine = G->toMultiLineString();
+    OGRMultiPoint* GPointCollection = G->toMultiPoint();
+    OGRPoint* GPoint;
+    unsigned int i = 0;
+    while(GPoint != nullptr)
+    {
+        GPoint = GPointCollection->getGeometryRef(i);
+        if(GPoint != nullptr)
+        {
+            std::cout << "(x, y): " << "(" 
+                    << GPoint->getX() << ", " << GPoint->getY() 
+                    << ")" << std::endl; 
+            i++;
+        }
+    }
+    std::cout << i << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -72,33 +88,11 @@ int main(int argc, char** argv)
     std::cerr << "Usage: ./hydrosheds_app <path-to-gdb-directory>" << std::endl;
     return 1;
     }
-    // Intialise the data set
+    // Initialise the data set
     HydroshedsDataSet D(argv[1]);
-    // Initialise a river segment object specify the river by index
-    RiverSegment R = D.ConstructSegment(13);
+    // Initialise a river segment object specified by the river by index
+    RiverSegment R = D.ConstructSegment(16);
     R.test_geometry();
 
-    // Extract layers
-    // for(auto&& oField: *(layer->GetNextFeature()))
-    // {
-    //     switch(oField.GetType())
-    //     {
-    //         case OFTInteger:
-    //             printf( "%d,", oField.GetInteger());
-    //             break;
-    //         case OFTInteger64:
-    //             printf( CPL_FRMT_GIB ",", oField.GetInteger64());
-    //             break;
-    //         case OFTReal:
-    //             printf( "%.3f,", oField.GetDouble());
-    //             break;
-    //         case OFTString:
-    //             printf( "%s,", oField.GetString());
-    //             break;
-    //         default:
-    //             printf( "%s,", oField.GetAsString());
-    //             break;
-    //     }
-    // }
     return 0;
 }
