@@ -1,18 +1,19 @@
-#include "/Users/anirudh/Documents/Internship (Hydro)/hydrosheds-cpp-api/include/hydrosheds/hydrosheds.hh"
+#include "../include/hydrosheds/hydrosheds.hh"
 
 #include "ogrsf_frmts.h"
 
 #include <iostream>
 #include <vector>
+#include <iomanip>
 
 using namespace hydrosheds;
 
 /* -- CLASS HYDROSHEDS DATA SET -- */
-HydroshedsDataSet::HydroshedsDataSet(const char* path)
+HydroshedsDataSet::HydroshedsDataSet(const std::string& path)
 {
     GDALAllRegister();
     GDALDataset* data;
-    data = (GDALDataset*) GDALOpenEx(path, GDAL_OF_VECTOR, NULL, NULL, NULL);
+    data = (GDALDataset*) GDALOpenEx(path.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
     if(data == NULL)
     {
         std::cerr << "Opening geodatabase failed." << std::endl;
@@ -64,21 +65,16 @@ void RiverSegment::test_geometry() const
     // std::cout << G->getGeometryName() << std::endl;
     // std::cout << G->getDimension() << std::endl;
     OGRMultiLineString* GLine = G->toMultiLineString();
-    OGRMultiPoint* GPointCollection = G->toMultiPoint();
-    OGRPoint* GPoint;
-    unsigned int i = 0;
-    while(GPoint != nullptr)
+    std::cout << std::setprecision(13);
+    for(auto multi_line_string: *(GLine))
     {
-        GPoint = GPointCollection->getGeometryRef(i);
-        if(GPoint != nullptr)
+        for(auto point: *(multi_line_string))
         {
-            std::cout << "(x, y): " << "(" 
-                    << GPoint->getX() << ", " << GPoint->getY() 
-                    << ")" << std::endl; 
-            i++;
+            // point is an OGRPoint
+            std::cout << point.getX() << ", " <<  point.getY() << std::endl;
         }
     }
-    std::cout << i << std::endl;
+    std::cout << std::setprecision(4);
 }
 
 int main(int argc, char** argv)
@@ -91,7 +87,7 @@ int main(int argc, char** argv)
     // Initialise the data set
     HydroshedsDataSet D(argv[1]);
     // Initialise a river segment object specified by the river by index
-    RiverSegment R = D.ConstructSegment(16);
+    RiverSegment R = D.ConstructSegment(27005);
     R.test_geometry();
 
     return 0;

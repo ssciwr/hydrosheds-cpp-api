@@ -19,7 +19,7 @@ namespace hydrosheds
     public:
 		// GDALOpenex accepts a const char *
 		HydroshedsDataSet() = default;
-		HydroshedsDataSet(const char* s);
+		HydroshedsDataSet(const std::string&);
 		std::array <int, 2> shape() const;
 		void FeatureAttributes() const;
 		RiverSegment ConstructSegment(const int& i) const;
