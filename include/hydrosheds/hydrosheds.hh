@@ -33,12 +33,14 @@ namespace hydrosheds
   {
     public:
 		void test_geometry() const;
+		int get_number_of_subsegments() const;
 		double getLength() const;
+		double getTotalLength() const;
 		double getGeologicalLength() const;
 		double getDischarge() const;
 
-		Coordinate getStartingPoint() const;
-		Coordinate getEndPoint() const;
+		Coordinate getStartingPoint(int) const;
+		Coordinate getEndPoint(int) const;
 
 		bool hasDownstreamSegment() const;
 		RiverSegment getDownstreamSegment() const;
@@ -47,9 +49,15 @@ namespace hydrosheds
     private:
 		RiverSegment(OGRFeature* feature);
 		OGRFeature* feature;
+		OGRGeometry* geometry;
 		unsigned int segment;
 		
 	friend class HydroshedsDataSet;
   };
 
+  /* -- SUBSEGMENT CLASS -- */
+  // Holds point data and stuff? 
+
 } 
+
+// Should segment be one segment or the number of segments? 

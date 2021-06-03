@@ -8,6 +8,14 @@
 
 using namespace hydrosheds;
 
+/* -- FREE FUNCTIONS -- */
+void print_coordinate(Coordinate p)
+{
+    std::cout << std::setprecision(13);
+    std::cout << "(" << p[0] << ", " << p[1] << ")" << std::endl; 
+    std::cout << std::setprecision(2);
+}
+
 /* -- CLASS HYDROSHEDS DATA SET -- */
 HydroshedsDataSet::HydroshedsDataSet(const std::string& path)
 {
@@ -54,17 +62,17 @@ RiverSegment HydroshedsDataSet::ConstructSegment(const int& i) const
 
 
 /* -- CLASS RIVER SEGMENT -- */
-RiverSegment::RiverSegment(OGRFeature* f): feature(f) {}
+RiverSegment::RiverSegment(OGRFeature* f)
+    : feature(f) 
+    {
+        geometry = feature->GetGeometryRef();
+    }
 
 void RiverSegment::test_geometry() const
 {
-    OGRGeometry* G;
-    G = feature->GetGeometryRef();
-    std::cout << "Number of geometrical attributes: " 
-              << feature->GetGeomFieldCount() << std::endl;
-    // std::cout << G->getGeometryName() << std::endl;
-    // std::cout << G->getDimension() << std::endl;
-    OGRMultiLineString* GLine = G->toMultiLineString();
+    // std::cout << "Number of geometrical attributes: " 
+    //           << feature->GetGeomFieldCount() << std::endl;
+    OGRMultiLineString* GLine = geometry->toMultiLineString();
     std::cout << std::setprecision(13);
     for(auto multi_line_string: *(GLine))
     {
@@ -74,8 +82,63 @@ void RiverSegment::test_geometry() const
             std::cout << point.getX() << ", " <<  point.getY() << std::endl;
         }
     }
-    std::cout << std::setprecision(4);
+    std::cout << std::setprecision(2);
 }
+
+int RiverSegment::get_number_of_subsegments() const
+{
+    OGRMultiLineString* GLine = geometry->toMultiLineString();
+    int count = 0;
+    for(auto multi_line_string: *(GLine))
+    {
+        for(auto point: *(multi_line_string))
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+Coordinate RiverSegment::getStartingPoint(int sub_segment) const
+{
+    OGRMultiLineString* GLine = geometry->toMultiLineString();
+    int count = 0;
+    Coordinate p;
+    for(auto multi_line_string: *(GLine))
+    {
+        for(auto point: *(multi_line_string))
+        {
+            if(count == sub_segment)
+            {
+                p = {point.getX(), point.getY()};
+            }
+            count++;
+        }
+    }
+    return p;
+}
+
+
+Coordinate RiverSegment::getEndPoint(int sub_segment) const
+{
+    OGRMultiLineString* GLine = geometry->toMultiLineString();
+    int count = 0;
+    Coordinate p;
+    for(auto multi_line_string: *(GLine))
+    {
+        for(auto point: *(multi_line_string))
+        {
+            if(count == sub_segment + 1)
+            {
+                p = {point.getX(), point.getY()};
+            }
+            count++;
+        }
+    }
+    return p; 
+}
+
+
 
 int main(int argc, char** argv)
 {
@@ -86,9 +149,18 @@ int main(int argc, char** argv)
     }
     // Initialise the data set
     HydroshedsDataSet D(argv[1]);
+    
     // Initialise a river segment object specified by the river by index
+    // See feature 27005 using ogrinfo -al <path_to_data> 
     RiverSegment R = D.ConstructSegment(27005);
     R.test_geometry();
 
+    // See number of subsegments in the chosen feature
+    std::cout << R.get_number_of_subsegments() << std::endl;
+
+
+    // Start and end points test
+    print_coordinate(R.getStartingPoint(0));
+    print_coordinate(R.getEndPoint(0));
     return 0;
 }
