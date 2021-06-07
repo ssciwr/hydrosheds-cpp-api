@@ -10,5 +10,5 @@ add_library(hydrosheds::hydrosheds ALIAS hydrosheds)
 
 # Add second library for the rasterization code
 add_library(rasterize rasterize.cc)
-target_link_libraries(rasterize PUBLIC hydrosheds)
+target_link_libraries(rasterize PUBLIC hydrosheds TIFF::TIFF)
 add_library(hydrosheds::rasterize ALIAS rasterize)

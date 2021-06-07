@@ -1,5 +1,6 @@
 #include "hydrosheds/rasterize.hh"
 
+#include<tiffio.h>
 
 namespace hydrosheds {
 
@@ -18,9 +19,10 @@ namespace hydrosheds {
     // TODO
   }
 
-  void RasterizedHydroshedsDataset::writeToFile(const std::string&) const
+  void RasterizedHydroshedsDataset::writeToFile(const std::string& filename) const
   {
-    // TODO (lower priority, we should use a library like libtiff)
+    // TODO e.g. using code from this StackOverflow post:
+    // https://stackoverflow.com/questions/50770906/32bit-tif-image-read-and-write-using-libtiff-library-c
   }
 
 }
