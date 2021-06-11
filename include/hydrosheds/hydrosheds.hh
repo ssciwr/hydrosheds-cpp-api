@@ -23,15 +23,15 @@ namespace hydrosheds
 		HydroshedsDataSet(const std::string&);
 		std::array <int, 2> shape() const;
 		void FeatureAttributes() const;
+		RiverSegment ConstructSegment(const int&) const;
 		OGRFeature* search_feature(unsigned int) const;
-		RiverSegment ConstructSegment(const int& i) const;
 
 	private:
 		OGRLayer* layer;
 	};
 
 
-	class RiverSegment
+	class RiverSegment: public HydroshedsDataSet
 	{
 	public:
 		void test_geometry() const;
@@ -46,11 +46,12 @@ namespace hydrosheds
 		void get_ID() const;
 
 		bool hasDownstreamSegment() const;
-		RiverSegment getDownstreamSegment() const;
+		void getDownstreamSegment() const;
 		// What about upstream segments - is it possible?
 
 	private:
 		RiverSegment(OGRFeature* feature);
+		OGRLayer* Layer;
 		OGRFeature* feature;
 		OGRGeometry* geometry;
 		OGRMultiLineString* GLine;
