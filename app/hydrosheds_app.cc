@@ -183,7 +183,7 @@ OGRFeature* RiverSegment::search_feature(unsigned int NEXT_DOWN_ID) const
     return f_ret;
 }
 
-void RiverSegment::getDownstreamSegment() const
+RiverSegment RiverSegment::getDownstreamSegment() const
 {
     /* Do for subsegments or move to next feature */
     if(this->hasDownstreamSegment() == false)
@@ -195,6 +195,8 @@ void RiverSegment::getDownstreamSegment() const
     // std::cout << feature->GetFieldAsInteger(1) << std::endl;
     // search_feature works fine. Segementation fault here
     OGRFeature* f = search_feature(feature->GetFieldAsInteger(1));
+    RiverSegment s(f, layer);
+    return s;
     // std::cout << feature->GetFID() << std::endl;
 }
 
@@ -225,10 +227,10 @@ int main(int argc, char** argv)
     std::cout << "Length of 1st subsegment of current river segment: " << R.getLength(1) << " Km" << std::endl;
     std::cout << "Total length of current river segment: " << R.getTotalLength() << "Km" << std::endl;
     std::cout << "Geological length of current river segment: " << R.getGeologicalLength() << " Km" << std::endl;
-    std::cout << "Discharge of current river segment: " << R.getDischarge() << " m^3/s" << std::endl;
-    // OGRFeature -> getlength
-    // Get downstream segment
-    R.getDownstreamSegment();
+    // std::cout << "Discharge of current river segment: " << R.getDischarge() << " m^3/s" << std::endl;
 
+    RiverSegment R1 = R.getDownstreamSegment();
+    std::cout << "Number of segments in downstream segment: " << R1.get_number_of_subsegments() << std::endl;
+    
     return 0;
 }

@@ -44,7 +44,7 @@ namespace hydrosheds
 		Coordinate getEndPoint(int) const;
 
 		bool hasDownstreamSegment() const;
-		void getDownstreamSegment() const;
+		RiverSegment getDownstreamSegment() const;
 		// What about upstream segments - is it possible?
 
 	private:
