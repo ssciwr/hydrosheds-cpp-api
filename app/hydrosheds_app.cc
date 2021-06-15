@@ -53,37 +53,21 @@ void HydroshedsDataSet::FeatureAttributes() const
     }
 }
 
-OGRFeature* HydroshedsDataSet::search_feature(unsigned int ID) const
-{
-    OGRFeature* f_iter;
-    OGRFeature* f_ret;
-    layer->ResetReading();
-    while((f_iter = layer->GetNextFeature()) != NULL)
-    {
-        if(f_iter->GetFieldAsInteger("HYRIV_ID") == ID)
-        {
-            f_ret = f_iter;
-            break;
-        }
-    }
-    return f_ret;
-}
-
 RiverSegment HydroshedsDataSet::ConstructSegment(const int& i) const
 {
     OGRFeature* f = layer->GetFeature(i);
-    RiverSegment s(f);
+    RiverSegment s(f, layer);
     return s;
 }
 
 
 /* -- CLASS RIVER SEGMENT -- */
-RiverSegment::RiverSegment(OGRFeature* f)
-    : feature(f)
+RiverSegment::RiverSegment(OGRFeature* f, OGRLayer* l)
+    : feature(f), layer(l)
 {
-    // set geometry object
-    geometry = feature->GetGeometryRef();
-    GLine = geometry->toMultiLineString();
+    // set vector of subsegments
+    OGRGeometry* geometry = feature->GetGeometryRef();
+    OGRMultiLineString* GLine = geometry->toMultiLineString();
     for(auto multi_line_string: *(GLine))
     {
         for(auto point: *(multi_line_string))
@@ -159,6 +143,7 @@ Coordinate RiverSegment::getStartingPoint(int sub_segment) const
 
 Coordinate RiverSegment::getEndPoint(int sub_segment) const
 {
+    /* Know the subsegment from construction */ 
     int count = 0;
     Coordinate p;
     for(int i = 1; i < segment_points.size(); i += 2)
@@ -182,23 +167,35 @@ bool RiverSegment::hasDownstreamSegment() const
     return true;
 }
 
-void RiverSegment::get_ID() const
+OGRFeature* RiverSegment::search_feature(unsigned int NEXT_DOWN_ID) const
 {
-    std::cout << feature->GetFID() << std::endl;
+    OGRFeature* f_iter;
+    OGRFeature* f_ret;
+    layer->ResetReading();
+    while((f_iter = layer->GetNextFeature()) != NULL)
+    {
+        if(f_iter->GetFieldAsInteger("HYRIV_ID") == NEXT_DOWN_ID)
+        {
+            f_ret = f_iter;
+            break;
+        }
+    }
+    return f_ret;
 }
 
 void RiverSegment::getDownstreamSegment() const
 {
+    /* Do for subsegments or move to next feature */
     if(this->hasDownstreamSegment() == false)
     {
         std::cerr << "No downstream segments for current segment." << std::endl;
+        exit(1);
     }
-
-    // int next_ID = feature->GetFieldAsInteger("NEXT_DOWN");
-    std::cout << feature->GetFieldAsInteger(1) << std::endl;
+    // int next_ID = feature->GetFieldAsInteger("NEXT_DOWN"); ->> ID
+    // std::cout << feature->GetFieldAsInteger(1) << std::endl;
     // search_feature works fine. Segementation fault here
     OGRFeature* f = search_feature(feature->GetFieldAsInteger(1));
-    std::cout << feature->GetFID() << std::endl;
+    // std::cout << feature->GetFID() << std::endl;
 }
 
 
@@ -222,18 +219,16 @@ int main(int argc, char** argv)
 
 
     // Start and end points test
-    print_coordinate(R.getStartingPoint(5));
-    print_coordinate(R.getEndPoint(5));
+    print_coordinate(R.getStartingPoint(1));
+    print_coordinate(R.getEndPoint(1));
     std::cout << std::setprecision(4);
-    std::cout << "Length of 6th subsegment of current river segment: " << R.getLength(5) << " Km" << std::endl;
+    std::cout << "Length of 1st subsegment of current river segment: " << R.getLength(1) << " Km" << std::endl;
     std::cout << "Total length of current river segment: " << R.getTotalLength() << "Km" << std::endl;
     std::cout << "Geological length of current river segment: " << R.getGeologicalLength() << " Km" << std::endl;
-    std::cout << "Discharge of current river segment: " << R.getDischarge() << " m^3 s" << std::endl;
-    
+    std::cout << "Discharge of current river segment: " << R.getDischarge() << " m^3/s" << std::endl;
+    // OGRFeature -> getlength
     // Get downstream segment
-    OGRFeature* f = D.search_feature(40005694);
-    std::cout << f->GetFieldAsInteger("HYRIV_ID") <<std::endl; 
-    // R.getDownstreamSegment();
+    R.getDownstreamSegment();
 
     return 0;
 }
