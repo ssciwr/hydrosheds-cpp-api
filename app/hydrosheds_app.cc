@@ -121,7 +121,7 @@ double RiverSegment::getGeologicalLength() const
 
 double RiverSegment::getDischarge() const
 {
-    return feature->GetFieldAsDouble("DIS_A V_CMS");
+    return feature->GetFieldAsDouble("DIS_AV_CMS");
 }
 
 Coordinate RiverSegment::getStartingPoint(int sub_segment) const
@@ -217,7 +217,7 @@ int main(int argc, char** argv)
     R.test_geometry();
 
     // See number of subsegments in the chosen feature
-    std::cout << "Number of segments: " << R.get_number_of_subsegments() << std::endl;
+    std::cout << "Number of subsegments: " << R.get_number_of_subsegments() << std::endl;
 
 
     // Start and end points test
@@ -227,10 +227,10 @@ int main(int argc, char** argv)
     std::cout << "Length of 1st subsegment of current river segment: " << R.getLength(1) << " Km" << std::endl;
     std::cout << "Total length of current river segment: " << R.getTotalLength() << "Km" << std::endl;
     std::cout << "Geological length of current river segment: " << R.getGeologicalLength() << " Km" << std::endl;
-    // std::cout << "Discharge of current river segment: " << R.getDischarge() << " m^3/s" << std::endl;
+    std::cout << "Discharge of current river segment: " << R.getDischarge() << " m^3/s" << std::endl;
 
     RiverSegment R1 = R.getDownstreamSegment();
-    std::cout << "Number of segments in downstream segment: " << R1.get_number_of_subsegments() << std::endl;
+    std::cout << "Number of subsegments in downstream segment: " << R1.get_number_of_subsegments() << std::endl;
     
     return 0;
 }
