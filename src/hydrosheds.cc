@@ -6,6 +6,7 @@
 #include<string>
 
 
+
 namespace hydrosheds {
 
   HydroshedsDataSet::HydroshedsDataSet(const std::string& path)
@@ -20,13 +21,14 @@ namespace hydrosheds {
     }
 
     layer = data->GetLayer(0);
+    this->count = layer->GetFeatureCount();
   }
 
   RiverSegment HydroshedsDataSet::getSegment() const
   {
     // This is extracting just some random feature for debugging purposes.
     // When we move on to iterators, this will vanish.
-    return RiverSegment(layer, layer->GetFeature(52));
+    return RiverSegment(layer, layer->GetFeature(12));
   }
 
   RiverSegment::RiverSegment(OGRLayer* layer, OGRFeature* feature)
@@ -97,5 +99,91 @@ namespace hydrosheds {
   {
     return feature->GetFieldAsDouble("LENGTH_KM");
   }
+
+  /// begin and end of the hydroshedsdata
+
+
+  FullDatasetRiverSegmentIterator HydroshedsDataSet::begin() const
+  {
+      //auto next = layer->GetNextFeature();
+      auto feature = layer->GetNextFeature(); /// starting already with the next feature... still works though
+      FullDatasetRiverSegmentIterator start(feature, layer);
+      return start;
+  }
+
+  FullDatasetRiverSegmentIterator HydroshedsDataSet::end() const
+  {
+      FullDatasetRiverSegmentIterator end(NULL, layer);
+     return end;
+  }
+
+  /// FullDataSetRiverSegmentIterator
+  FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(OGRFeature* ogrFeature, OGRLayer* ogrLayer)
+  : segment(ogrLayer, ogrFeature)
+  {
+        /// intializing the values
+        feature = ogrFeature;
+        layer = ogrLayer;
+    }
+
+
+    FullDatasetRiverSegmentIterator increment(hydrosheds::FullDatasetRiverSegmentIterator it)
+    {
+        auto next = it.layer->GetNextFeature();
+        hydrosheds::FullDatasetRiverSegmentIterator result(next, it.layer);
+        return result;
+    }
+
+
+    // Prefix increment
+    FullDatasetRiverSegmentIterator FullDatasetRiverSegmentIterator::operator++()
+    {
+      /// "incrementing" the Feature first
+      //FullDatasetRiverSegmentIterator t(feature, layer);
+
+        auto It = increment(*this);
+        return It;
+    }
+
+    // Postfix increment
+    FullDatasetRiverSegmentIterator FullDatasetRiverSegmentIterator::operator++(int)
+    {
+      /// returning the feature first
+      auto start = this->feature;
+      this->feature = this->layer->GetNextFeature();
+      FullDatasetRiverSegmentIterator result(this->feature, this->layer);
+      return result;
+    }
+
+    /// Two implementations for the comparison operators
+
+    bool FullDatasetRiverSegmentIterator::operator==(const FullDatasetRiverSegmentIterator& a)
+    {
+      bool result;
+      ///result = feature->Equal(a.feature);
+      result = feature == a.feature;
+      return result; /// do pointer equality
+    }
+
+
+    bool FullDatasetRiverSegmentIterator::operator!=(const FullDatasetRiverSegmentIterator& a)
+    {
+        bool result;
+        result = feature->Equal(a.getFeature());
+        return !result;
+    }
+
+
+    RiverSegment* FullDatasetRiverSegmentIterator::operator->()
+    {
+      return &segment;
+    }
+
+
+    /// and this doesnt work at all
+    RiverSegment& FullDatasetRiverSegmentIterator::operator*()
+    {
+        return segment;
+    }
 
 } // namespace hydrosheds
