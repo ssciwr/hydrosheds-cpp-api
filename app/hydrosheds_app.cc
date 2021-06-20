@@ -25,6 +25,7 @@ HydroshedsDataSet::HydroshedsDataSet(const std::string& path)
     if(data == NULL)
     {
         std::cerr << "Opening geodatabase failed." << std::endl;
+        exit(1);
     }
     layer = data->GetLayer(0);
 }
@@ -53,19 +54,18 @@ void HydroshedsDataSet::FeatureAttributes() const
     }
 }
 
-RiverSegment HydroshedsDataSet::ConstructSegment(const int& i) const
+RiverSegment HydroshedsDataSet::ConstructSegment() const
 {
-    OGRFeature* f = layer->GetFeature(i);
-    RiverSegment s(f, layer);
+    OGRFeature* f = layer->GetFeature(0);
+    RiverSegment s(f, layer, 0);
     return s;
 }
 
-
 /* -- CLASS RIVER SEGMENT -- */
-RiverSegment::RiverSegment(OGRFeature* f, OGRLayer* l)
-    : feature(f), layer(l)
+RiverSegment::RiverSegment(OGRFeature* f, OGRLayer* l, int sub_segment = 0)
+    : feature(f), layer(l), segment(sub_segment)
 {
-    // set vector of subsegments
+    // set vector of subsegments of current feature
     OGRGeometry* geometry = feature->GetGeometryRef();
     OGRMultiLineString* GLine = geometry->toMultiLineString();
     for(auto multi_line_string: *(GLine))
@@ -90,15 +90,16 @@ void RiverSegment::test_geometry() const
     std::cout << std::setprecision(2);
 }
 
+
 int RiverSegment::get_number_of_subsegments() const
 {
     return segment_points.size() % 2 == 0 ? segment_points.size() / 2 : segment_points.size() / 2 + 1;
 }
 
-double RiverSegment::getLength(int sub_segment) const
+double RiverSegment::getLength() const
 {
-    Coordinate p1 = this->getStartingPoint(sub_segment);
-    Coordinate p2 = this->getEndPoint(sub_segment); 
+    Coordinate p1 = this->getStartingPoint(segment);
+    Coordinate p2 = this->getEndPoint(segment); 
     return std::sqrt(std::pow(71.5 * (p1[0] - p2[0]), 2) + std::pow(111.3 * (p1[1] - p2[1]), 2));
 }
 
@@ -116,7 +117,10 @@ double RiverSegment::getTotalLength() const
 
 double RiverSegment::getGeologicalLength() const
 {
-    return feature->GetFieldAsDouble("LENGTH_KM");
+    double geological_length_of_feature = feature->GetFieldAsDouble("LENGTH_KM");
+    double length_of_current_segment = this->getLength();
+    double total_length = this->getTotalLength(); 
+    return (length_of_current_segment / total_length) * geological_length_of_feature;
 }
 
 double RiverSegment::getDischarge() const
@@ -124,13 +128,13 @@ double RiverSegment::getDischarge() const
     return feature->GetFieldAsDouble("DIS_AV_CMS");
 }
 
-Coordinate RiverSegment::getStartingPoint(int sub_segment) const
+Coordinate RiverSegment::getStartingPoint(int seg) const
 {
     int count = 0;
     Coordinate p;
     for(int i = 0; i < segment_points.size(); i += 2)
     {
-        if (count == sub_segment)
+        if (count == seg + 1)
         {
             p = segment_points[i];
             break;
@@ -138,17 +142,16 @@ Coordinate RiverSegment::getStartingPoint(int sub_segment) const
         count += 1;
     }
     return p;
-
 }
 
-Coordinate RiverSegment::getEndPoint(int sub_segment) const
+Coordinate RiverSegment::getEndPoint(int seg) const
 {
     /* Know the subsegment from construction */ 
     int count = 0;
     Coordinate p;
     for(int i = 1; i < segment_points.size(); i += 2)
     {
-        if (count == sub_segment)
+        if (count == seg + 1)
         {
             p = segment_points[i];
             break;
@@ -195,7 +198,7 @@ RiverSegment RiverSegment::getDownstreamSegment() const
     // std::cout << feature->GetFieldAsInteger(1) << std::endl;
     // search_feature works fine. Segementation fault here
     OGRFeature* f = search_feature(feature->GetFieldAsInteger(1));
-    RiverSegment s(f, layer);
+    RiverSegment s(f, layer, 0);
     return s;
     // std::cout << feature->GetFID() << std::endl;
 }
@@ -208,15 +211,13 @@ int main(int argc, char** argv)
     std::cerr << "Usage: ./hydrosheds_app <path-to-gdb-directory>" << std::endl;
     return 1;
     }
-    // Initialise the data set
+    // Initialise the data set.
     HydroshedsDataSet D(argv[1]);
-    
-    // Initialise a river segment object specified by the river by index
-    // See feature 27005 using ogrinfo -al <path_to_data> 
-    RiverSegment R = D.ConstructSegment(5693);
-    R.test_geometry();
 
-    // See number of subsegments in the chosen feature
+    // Initialise a river segment object.
+    RiverSegment R = D.ConstructSegment();
+
+    /* // See number of subsegments in the chosen feature
     std::cout << "Number of subsegments: " << R.get_number_of_subsegments() << std::endl;
 
 
@@ -231,6 +232,6 @@ int main(int argc, char** argv)
 
     RiverSegment R1 = R.getDownstreamSegment();
     std::cout << "Number of subsegments in downstream segment: " << R1.get_number_of_subsegments() << std::endl;
-    
+     */
     return 0;
 }

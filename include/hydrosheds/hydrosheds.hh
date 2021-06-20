@@ -6,52 +6,128 @@
 #include <string>
 #include <vector>
 
+/** @brief hydrosheds primary namespace
+ *
+ * Used to construct an object of the hydrosheds data.
+ * Requires the dataset to be in .gdb format.
+ * Can be downloaded from https://www.hydrosheds.org/.
+ */
+
 namespace hydrosheds 
 {
 
 	using Coordinate = std::array <double, 2>;
 	using HydroshedsID = int;
 
-	// Forward declaration
+	
 	class RiverSegment;
 
+	/** @brief HydroshedsDataSet class
+	 * Main interface that deals with the .gdb data
+	 */
 	class HydroshedsDataSet
 	{
 	public:
-		// GDALOpenex accepts a const char *
+		/** @brief main constructor
+		 * Defauult constructor.
+		 */ 
 		HydroshedsDataSet() = default;
+
+		/** @brief Primary constructor
+		 * Initialises the dataset using an input path from the command line.
+		 * @param path Path to file.
+		 */  
 		HydroshedsDataSet(const std::string&);
+
+		/** @brief Get dataset dimensions
+		 * Returns the size of the dataset as an array (#features, #column_fields).
+		 */  
 		std::array <int, 2> shape() const;
+
+		/** @brief Field names in dataset
+		 * Returns the column names in the dataset.
+		 */  
 		void FeatureAttributes() const;
-		RiverSegment ConstructSegment(const int&) const;
+
+		/** @brief Access to the subsegments of each feature
+		 * Constructs an instance of the subsegment interface.
+		 * By defeault the contructor holds the passes the first subsegment  
+		 * of the first feature in the dataset. 
+		 */
+		RiverSegment ConstructSegment() const;
 
 	private:
 		OGRLayer* layer;
 	};
 
-
+	/** @brief RiverSegment class
+	 * Interface deals with all features using the subsegments.
+	 */	
 	class RiverSegment
 	{
 	public:
 		void test_geometry() const;
-		int get_number_of_subsegments() const;
-		double getLength(int) const;
+
+		/** @brief Length of current subsegment
+		 * Returns the calculated length of the subsegment (who's index, starting 0, 
+		 * is stored in @c segment ) in Km. The length is calculated
+		 * using the start and points of segment @c segment. 
+		 */
+		double getLength() const;
+
 		double getTotalLength() const;
-		double getGeologicalLength() const;
+
+		/** @brief Geological Length of current subsegment
+		 * Returns the length of the subsegment (who's index, starting 0, 
+		 * is stored in @c segment ) as a fraction of the
+		 * geological length of the feature in Km. 
+		 */
+		double getGeologicalLength() const; // distribute by ratio length / total_length * geo_length 
+
+		/** @brief Feature flow rate
+		 * Gives the flow rate of the feature stored 
+		 * in the class in m^3/s.
+		 */ 
 		double getDischarge() const;
 
+		/** @brief Starting point of current subsegment
+		 * Returns the starting point of the subsegment (who's index, starting 0, 
+		 * is stored in @c segment ) in geological coordinates.
+		 */
 		Coordinate getStartingPoint(int) const;
+
+		/** @brief End point of current subsegment
+		 * Returns the End point of the subsegment who's index (starting 0) 
+		 * is stored in @c segment in geological coordinates.
+		 */
 		Coordinate getEndPoint(int) const;
 
-		bool hasDownstreamSegment() const;
-		RiverSegment getDownstreamSegment() const;
-		// What about upstream segments - is it possible?
+		/** @brief Existence of next downstream segment
+		 * Returns @c bool depending on whether a 
+		 * downstream exists. Returns to true even if the 
+		 * @c feature needs to be shifted.
+		 */
+		bool hasDownstreamSegment() const; 
+
+		/** @brief Constructs next downstream segment
+		 * Uses @c bool from @c hasDownStreamSegment() to
+		 * check whether segment exists. Returns a @c RiverSegment 
+		 * object.
+		 */	
+		RiverSegment getDownstreamSegment() const; 
 
 	private:
-		RiverSegment(OGRFeature*, OGRLayer*);
+		/** @brief Private constructor
+		 * Constructs by default the first subsegment of the first feature.
+		 */
+		RiverSegment(OGRFeature*, OGRLayer*, int);
+		
+		// used for constructing all segments 
 		OGRFeature* search_feature(unsigned int) const;
-		OGRLayer* layer; // pass layer
-		OGRFeature* feature;
+		int get_number_of_subsegments() const;
+		// SQL query for above
+		OGRLayer* layer;
+		OGRFeature* feature; 
 		std::vector <Coordinate> segment_points;  
 		unsigned long int segment;
 		
