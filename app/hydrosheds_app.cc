@@ -30,16 +30,12 @@ HydroshedsDataSet::HydroshedsDataSet(const std::string& path)
     layer = data->GetLayer(0);
 }
 
-std::array <int, 2> HydroshedsDataSet::shape() const
+std::array <unsigned long long, 2> HydroshedsDataSet::shape() const
 {
     OGRFeature* feature;
-    int count = 0;
-    while((feature = layer->GetNextFeature()) != nullptr)
-    {
-        count++;
-    }
+    feature = layer->GetFeature(1);
     // check this count may return nothing as feature maybe pointing to nullptr
-    std::array <int, 2> shape = {count, feature->GetFieldCount()};
+    std::array <unsigned long long, 2> shape = {(unsigned long long) layer->GetFeatureCount(), (unsigned long long) feature->GetFieldCount()};
     return shape;
 }
 
@@ -62,8 +58,8 @@ RiverSegment HydroshedsDataSet::ConstructSegment() const
 }
 
 /* -- CLASS RIVER SEGMENT -- */
-RiverSegment::RiverSegment(OGRFeature* f, OGRLayer* l, int sub_segment = 0)
-    : feature(f), layer(l), segment(sub_segment)
+RiverSegment::RiverSegment(OGRFeature* f, OGRLayer* l, int seg_num)
+    : feature(f), layer(l), segment(seg_num)
 {
     // set vector of subsegments of current feature
     OGRGeometry* geometry = feature->GetGeometryRef();
@@ -89,7 +85,6 @@ void RiverSegment::test_geometry() const
     }
     std::cout << std::setprecision(2);
 }
-
 
 int RiverSegment::get_number_of_subsegments() const
 {
@@ -118,7 +113,6 @@ double RiverSegment::getTotalLength() const
 double RiverSegment::getGeologicalLength() const
 {
     double geological_length_of_feature = feature->GetFieldAsDouble("LENGTH_KM");
-    std::cout << "Geological Length: " << geological_length_of_feature << std::endl;
     double length_of_current_segment = this->getLength();
     double total_length = this->getTotalLength(); 
     return (length_of_current_segment / total_length) * geological_length_of_feature;
@@ -190,21 +184,22 @@ OGRFeature* RiverSegment::search_feature(unsigned int NEXT_DOWN_ID) const
     return f_ret;
 }
 
-RiverSegment RiverSegment::getDownstreamSegment() const
+RiverSegment RiverSegment::getDownstreamSegment()
 {
-    /* Do for subsegments or move to next feature */
     if(this->hasDownstreamSegment() == false)
     {
         std::cerr << "No downstream segments for current segment." << std::endl;
         exit(1);
     }
-    // int next_ID = feature->GetFieldAsInteger("NEXT_DOWN"); ->> ID
-    // std::cout << feature->GetFieldAsInteger(1) << std::endl;
-    // search_feature works fine. Segementation fault here
-    OGRFeature* f = search_feature(feature->GetFieldAsInteger(1));
+
+    if(segment == segment_points.size() - 1)
+    {
+       segment++;
+    }
+
+    OGRFeature* f = search_feature(feature->GetFieldAsInteger("NEXT_DOWN"));
     RiverSegment s(f, layer, 0);
     return s;
-    // std::cout << feature->GetFID() << std::endl;
 }
 
 
@@ -221,7 +216,8 @@ int main(int argc, char** argv)
     // Initialise a river segment object.
     RiverSegment R = D.ConstructSegment();
     R.test_geometry();
-    std::cout << std::setprecision(13); 
+    std::cout << std::setprecision(13);
+    std::cout << "Shape: " << D.shape()[0] << " " << D.shape()[1] << std::endl;
     std::cout << R.getLength() << std::endl;
     std::cout << R.getTotalLength() << std::endl;
     std::cout << R.getGeologicalLength() << std::endl;

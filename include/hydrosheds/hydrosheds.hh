@@ -40,7 +40,7 @@ namespace hydrosheds
 		/** @brief Get dataset dimensions
 		 * Returns the size of the dataset as an array (#features, #column_fields).
 		 */  
-		std::array <int, 2> shape() const;
+		std::array <unsigned long long, 2> shape() const;
 
 		/** @brief Field names in dataset
 		 * Returns the column names in the dataset.
@@ -112,7 +112,7 @@ namespace hydrosheds
 		 * check whether segment exists. Returns a 
 		 * @c RiverSegment object.
 		 */	
-		RiverSegment getDownstreamSegment() const; 
+		RiverSegment getDownstreamSegment(); 
 
 	private:
 		/** @brief Private constructor
@@ -125,10 +125,9 @@ namespace hydrosheds
 		int get_number_of_subsegments() const;
 		// SQL query for above
 		OGRLayer* layer;
-		OGRFeature* feature; 
+		OGRFeature* feature;
+		unsigned long int segment; 
 		std::vector <Coordinate> segment_points;  
-		unsigned long int segment;
-		
 		friend class HydroshedsDataSet;
 	};
 
