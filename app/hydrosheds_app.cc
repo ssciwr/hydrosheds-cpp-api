@@ -56,7 +56,7 @@ void HydroshedsDataSet::FeatureAttributes() const
 
 RiverSegment HydroshedsDataSet::ConstructSegment() const
 {
-    OGRFeature* f = layer->GetFeature(0);
+    OGRFeature* f = layer->GetFeature(1);
     RiverSegment s(f, layer, 0);
     return s;
 }
@@ -100,7 +100,7 @@ double RiverSegment::getLength() const
 {
     Coordinate p1 = this->getStartingPoint(segment);
     Coordinate p2 = this->getEndPoint(segment); 
-    return std::sqrt(std::pow(71.5 * (p1[0] - p2[0]), 2) + std::pow(111.3 * (p1[1] - p2[1]), 2));
+    return std::sqrt(std::pow(71.500 * (p1[0] - p2[0]), 2) + std::pow(111.300 * (p1[1] - p2[1]), 2));
 }
 
 double RiverSegment::getTotalLength() const
@@ -118,6 +118,7 @@ double RiverSegment::getTotalLength() const
 double RiverSegment::getGeologicalLength() const
 {
     double geological_length_of_feature = feature->GetFieldAsDouble("LENGTH_KM");
+    std::cout << "Geological Length: " << geological_length_of_feature << std::endl;
     double length_of_current_segment = this->getLength();
     double total_length = this->getTotalLength(); 
     return (length_of_current_segment / total_length) * geological_length_of_feature;
@@ -134,7 +135,7 @@ Coordinate RiverSegment::getStartingPoint(int seg) const
     Coordinate p;
     for(int i = 0; i < segment_points.size(); i += 2)
     {
-        if (count == seg + 1)
+        if (count == seg)
         {
             p = segment_points[i];
             break;
@@ -151,7 +152,7 @@ Coordinate RiverSegment::getEndPoint(int seg) const
     Coordinate p;
     for(int i = 1; i < segment_points.size(); i += 2)
     {
-        if (count == seg + 1)
+        if (count == seg)
         {
             p = segment_points[i];
             break;
@@ -163,9 +164,12 @@ Coordinate RiverSegment::getEndPoint(int seg) const
 
 bool RiverSegment::hasDownstreamSegment() const
 {
-    if(feature->GetFieldAsInteger("NEXT_DOWN") == 0 || feature->GetFieldAsInteger("ENDORHEIC") == 1)
+    if(segment == segment_points.size() - 1)
     {
-        return false;
+        if(feature->GetFieldAsInteger("NEXT_DOWN") == 0 || feature->GetFieldAsInteger("ENDORHEIC") == 1)
+        {
+            return false;
+        } 
     }
     return true;
 }
@@ -216,6 +220,11 @@ int main(int argc, char** argv)
 
     // Initialise a river segment object.
     RiverSegment R = D.ConstructSegment();
+    R.test_geometry();
+    std::cout << std::setprecision(13); 
+    std::cout << R.getLength() << std::endl;
+    std::cout << R.getTotalLength() << std::endl;
+    std::cout << R.getGeologicalLength() << std::endl;
 
     /* // See number of subsegments in the chosen feature
     std::cout << "Number of subsegments: " << R.get_number_of_subsegments() << std::endl;

@@ -15,11 +15,9 @@
 
 namespace hydrosheds 
 {
-
 	using Coordinate = std::array <double, 2>;
 	using HydroshedsID = int;
 
-	
 	class RiverSegment;
 
 	/** @brief HydroshedsDataSet class
@@ -111,8 +109,8 @@ namespace hydrosheds
 
 		/** @brief Constructs next downstream segment
 		 * Uses @c bool from @c hasDownStreamSegment() to
-		 * check whether segment exists. Returns a @c RiverSegment 
-		 * object.
+		 * check whether segment exists. Returns a 
+		 * @c RiverSegment object.
 		 */	
 		RiverSegment getDownstreamSegment() const; 
 
