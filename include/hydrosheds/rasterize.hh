@@ -8,25 +8,25 @@
 
 namespace hydrosheds {
 
-  class RasterizedHydroshedsDataset
-  {
+    class RasterizedHydroshedsDataset
+    {
     public:
-    //! Construct a rasterized dataset from a vector dataset
-    RasterizedHydroshedsDataset(
-      const HydroshedsDataSet&,
-      std::array<unsigned int, 2>,
-      Coordinate,
-      Coordinate
-    );
+        //! Construct a rasterized dataset from a vector dataset
+        RasterizedHydroshedsDataset(
+                const HydroshedsDataSet&,
+                std::array<unsigned int, 2>,
+                Coordinate,
+                Coordinate
+        );
 
-    //! Return whether a certain pixel coordinate is coloured or not
-    bool operator[](const std::array<unsigned int, 2>&) const;
+        //! Return whether a certain pixel coordinate is coloured or not
+        bool operator[](const std::array<unsigned int, 2>&) const;
 
-    //! Dump image into file
-    void writeToFile(const std::string&) const;
+        //! Dump image into file
+        void writeToFile(const std::string&) const;
 
     private:
-    std::vector<std::vector<bool>> data;
-  };
+        std::vector<std::vector<bool>> data;
+    };
 
 } // namespace hyrosheds
