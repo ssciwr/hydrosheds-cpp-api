@@ -64,9 +64,19 @@ namespace hydrosheds
 	class RiverSegment
 	{
 	public:
-
+		/** @brief Default Constructor
+	 	 */
 		RiverSegment() = default;
+
+		/** @brief Copy Constructor
+		 * Implements deep copies.
+		 * Copies entitie in @param RiverSegment 
+		 * has to deal with the feature pointer
+	 	 */	
 		RiverSegment(const RiverSegment&);
+
+		/** @brief Assignment Operator
+	 	 */		
 		RiverSegment& operator=(RiverSegment&);
 
 		void test_geometry() const;
@@ -89,7 +99,7 @@ namespace hydrosheds
 
 		/** @brief Feature flow rate
 		 * Gives the flow rate of the feature stored 
-		 * in the class in m^3/s.
+		 * in the class in \f$ m^3/s \f$.
 		 */ 
 		double getDischarge() const;
 
@@ -126,13 +136,6 @@ namespace hydrosheds
 		 */
 		int get_number_of_subsegments() const;
  
-		/** @brief Search feature
-		 * Search the feature with number (ID) 
-		 * @c ID . The ID is the feature number and
-		 * is not the HYRIV_ID. 
-		 */
-		OGRFeature* search_feature(unsigned int) const;
-
 		long get_segment() const
 		{
 			return this->segment;
@@ -149,9 +152,14 @@ namespace hydrosheds
 		 * Constructs by default the first subsegment of the first feature.
 		 */
 		RiverSegment(OGRFeature*, OGRLayer*, int);
-		//RiverSegment& operator=(RiverSegment&);
-		
-		
+
+		/** @brief Search feature
+		 * Search the feature with number (ID) 
+		 * @c ID . The ID is the feature number and
+		 * is not the HYRIV_ID. 
+		 */
+		OGRFeature* search_feature(unsigned int) const;
+
 		OGRLayer* layer;
 		OGRFeature* feature;
 		unsigned long int segment; 
