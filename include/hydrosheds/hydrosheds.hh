@@ -66,6 +66,8 @@ namespace hydrosheds
 	public:
 
 		RiverSegment() = default;
+		RiverSegment(const RiverSegment&);
+		RiverSegment& operator=(RiverSegment&);
 
 		void test_geometry() const;
 
@@ -147,6 +149,7 @@ namespace hydrosheds
 		 * Constructs by default the first subsegment of the first feature.
 		 */
 		RiverSegment(OGRFeature*, OGRLayer*, int);
+		//RiverSegment& operator=(RiverSegment&);
 		
 		
 		OGRLayer* layer;
