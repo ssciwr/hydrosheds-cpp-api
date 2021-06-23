@@ -84,10 +84,15 @@ namespace hydrosheds
 		/** @brief Length of current subsegment
 		 * Returns the calculated length of the subsegment (who's index, starting 0, 
 		 * is stored in @c segment ) in Km. The length is calculated
-		 * using the start and points of segment @c segment. 
+		 * using the start and end points of segment @c segment. 
 		 */
 		double getLength() const;
 
+		/** @brief Sum length of all subsegments
+		 * Returns the sum of the calculated length of all subsegments (who's index, starting 0, 
+		 * is stored in @c segment ) in Km. The length is calculated
+		 * using the start and end points of segment @c segment. 
+		 */
 		double getTotalLength() const;
 
 		/** @brief Geological Length of current subsegment
