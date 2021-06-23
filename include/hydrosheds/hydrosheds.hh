@@ -64,6 +64,9 @@ namespace hydrosheds
 	class RiverSegment
 	{
 	public:
+
+		RiverSegment() = default;
+
 		void test_geometry() const;
 
 		/** @brief Length of current subsegment
@@ -112,7 +115,32 @@ namespace hydrosheds
 		 * check whether segment exists. Returns a 
 		 * @c RiverSegment object.
 		 */	
-		RiverSegment getDownstreamSegment(); 
+		RiverSegment getDownstreamSegment();
+
+		/** @brief Total subsegments in a feature
+		 * Gives the total number of subsegments 
+		 * in a feature. The count is based on the
+		 * start and end points of one subsegment.
+		 */
+		int get_number_of_subsegments() const;
+ 
+		/** @brief Search feature
+		 * Search the feature with number (ID) 
+		 * @c ID . The ID is the feature number and
+		 * is not the HYRIV_ID. 
+		 */
+		OGRFeature* search_feature(unsigned int) const;
+
+		long get_segment() const
+		{
+			return this->segment;
+		}
+
+		int getfeature_index() const
+		{
+			return this->feature->GetFID();
+		}
+		
 
 	private:
 		/** @brief Private constructor
@@ -120,14 +148,12 @@ namespace hydrosheds
 		 */
 		RiverSegment(OGRFeature*, OGRLayer*, int);
 		
-		// used for constructing all segments 
-		OGRFeature* search_feature(unsigned int) const;
-		int get_number_of_subsegments() const;
-		// SQL query for above
+		
 		OGRLayer* layer;
 		OGRFeature* feature;
 		unsigned long int segment; 
 		std::vector <Coordinate> segment_points;  
+		
 		friend class HydroshedsDataSet;
 	};
 

@@ -59,11 +59,18 @@ RiverSegment HydroshedsDataSet::ConstructSegment() const
 
 /* -- CLASS RIVER SEGMENT -- */
 RiverSegment::RiverSegment(OGRFeature* f, OGRLayer* l, int seg_num)
-    : feature(f), layer(l), segment(seg_num)
+    : feature(f), layer(l)
 {
+    this->segment = seg_num;
+    // std::cout << "Constructing segment: " << std::endl;
+    // std::cout << "\t";
+    // std::cout << "Feature HYRIV: " << feature->GetFID() << "\n";
+    // std::cout << "\t";
+    // std::cout << "segment num: " << segment << "\n";
     // set vector of subsegments of current feature
-    OGRGeometry* geometry = feature->GetGeometryRef();
+    OGRGeometry* geometry = f -> GetGeometryRef();
     OGRMultiLineString* GLine = geometry->toMultiLineString();
+    this->segment_points.clear();
     for(auto multi_line_string: *(GLine))
     {
         for(auto point: *(multi_line_string))
@@ -71,7 +78,7 @@ RiverSegment::RiverSegment(OGRFeature* f, OGRLayer* l, int seg_num)
             // set segment start and end points
             // point is an OGRPoint 
             Coordinate p = {point.getX(), point.getY()};
-            segment_points.push_back(p);
+            this->segment_points.push_back(p);
         }
     }
 }
@@ -186,19 +193,27 @@ OGRFeature* RiverSegment::search_feature(unsigned int NEXT_DOWN_ID) const
 
 RiverSegment RiverSegment::getDownstreamSegment()
 {
+    // What happens if feature is endorheic should go back to main river.
     if(this->hasDownstreamSegment() == false)
     {
         std::cerr << "No downstream segments for current segment." << std::endl;
         exit(1);
     }
 
-    if(segment == segment_points.size() - 1)
+    // Need better memory management.
+    OGRFeature* f;
+    if(this->segment < this->get_number_of_subsegments() - 1)
     {
-       segment++;
+        f = feature;
+    } 
+    else
+    {
+        f = this->search_feature(feature->GetFieldAsInteger("NEXT_DOWN"));
     }
-
-    OGRFeature* f = search_feature(feature->GetFieldAsInteger("NEXT_DOWN"));
-    RiverSegment s(f, layer, 0);
+    // std::cout << "From downstream feature ID: " << f->GetFID() << std::endl;
+    
+    int new_segment_id = this->segment + 1;
+    RiverSegment s(f, layer, new_segment_id);
     return s;
 }
 
@@ -207,36 +222,50 @@ int main(int argc, char** argv)
 {
     if (argc != 2) 
     {
-    std::cerr << "Usage: ./hydrosheds_app <path-to-gdb-directory>" << std::endl;
-    return 1;
+        std::cerr << "Usage: ./hydrosheds_app <path-to-gdb-directory>" << std::endl;
+        return 1;
     }
+
     // Initialise the data set.
     HydroshedsDataSet D(argv[1]);
 
     // Initialise a river segment object.
     RiverSegment R = D.ConstructSegment();
+    // Initial testing
+    std::cout << "TEST GEOMETRY" << std::endl;
     R.test_geometry();
     std::cout << std::setprecision(13);
     std::cout << "Shape: " << D.shape()[0] << " " << D.shape()[1] << std::endl;
-    std::cout << R.getLength() << std::endl;
-    std::cout << R.getTotalLength() << std::endl;
-    std::cout << R.getGeologicalLength() << std::endl;
+    // std::cout << R.getLength() << std::endl;
+    // std::cout << R.getTotalLength() << std::endl;
+    // std::cout << R.getGeologicalLength() << std::endl;
+    std::cout << std::setprecision(2);
 
-    /* // See number of subsegments in the chosen feature
-    std::cout << "Number of subsegments: " << R.get_number_of_subsegments() << std::endl;
-
-
-    // Start and end points test
-    print_coordinate(R.getStartingPoint(1));
-    print_coordinate(R.getEndPoint(1));
-    std::cout << std::setprecision(4);
-    std::cout << "Length of 1st subsegment of current river segment: " << R.getLength(1) << " Km" << std::endl;
-    std::cout << "Total length of current river segment: " << R.getTotalLength() << "Km" << std::endl;
-    std::cout << "Geological length of current river segment: " << R.getGeologicalLength() << " Km" << std::endl;
-    std::cout << "Discharge of current river segment: " << R.getDischarge() << " m^3/s" << std::endl;
-
+    std::cout << "Current subsegment: " << R.get_segment() << std::endl;
+    std::cout << "Getting downstream segments..." << std::endl;
     RiverSegment R1 = R.getDownstreamSegment();
-    std::cout << "Number of subsegments in downstream segment: " << R1.get_number_of_subsegments() << std::endl;
-     */
+    std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
+    std::cout << "Current subsegment: " << R1.get_segment() << std::endl;
+
+    std::cout << "Getting downstream segments..." << std::endl;
+    RiverSegment R2 = R1.getDownstreamSegment();
+    std::cout << "Feature index: " << R2.getfeature_index() << std::endl;
+    std::cout << "Current subsegment: " << R2.get_segment() << std::endl;
+
+    std::cout << "Getting downstream segments..." << std::endl;
+    RiverSegment R3 = R2.getDownstreamSegment();
+    std::cout << "Feature index: " << R3.getfeature_index() << std::endl;
+    std::cout << "Current subsegment: " << R3.get_segment() << std::endl;
+
+    std::cout << "Getting downstream segments..." << std::endl;
+    RiverSegment R4 = R3.getDownstreamSegment();
+    std::cout << "Feature index: " << R4.getfeature_index() << std::endl;
+    std::cout << "Current subsegment: " << R4.get_segment() << std::endl;
+
+    std::cout << "Getting downstream segments..." << std::endl;
+    RiverSegment R5 = R4.getDownstreamSegment();
+    std::cout << "Feature index: " << R5.getfeature_index() << std::endl;
+    std::cout << "Current subsegment: " << R5.get_segment() << std::endl;
+    
     return 0;
 }
