@@ -115,8 +115,8 @@ namespace hydrosheds {
         /** @brief Prefix incrementation
          *
          *  This increment operator increments the iterator by assiging its feature to
-         *  the next upcoming feature defined by the layer. It will first incremented and then
-         *  it will be returned
+         *  the next upcoming feature defined by the layer. It will be incremented first
+         *  and then returned
          *
          * @returns an incremented version of the iterator
          */

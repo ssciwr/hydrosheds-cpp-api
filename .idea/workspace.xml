@@ -37,15 +37,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="34efcf83-79ec-4c41-ae90-bec9fc72a338" name="Default Changelist" comment="Task of 21.5.2021&#10;&#10;implemented methods for RiverSegment &#10;and tested them">
-      <change beforePath="$PROJECT_DIR$/app/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/app/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/hydrosheds_app.cc" beforeDir="false" afterPath="$PROJECT_DIR$/app/hydrosheds_app.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/rasterize_app.cc" beforeDir="false" afterPath="$PROJECT_DIR$/app/rasterize_app.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/conf.py" beforeDir="false" afterPath="$PROJECT_DIR$/doc/conf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/doc/index.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/hydrosheds/hydrosheds.hh" beforeDir="false" afterPath="$PROJECT_DIR$/include/hydrosheds/hydrosheds.hh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/hydrosheds/rasterize.hh" beforeDir="false" afterPath="$PROJECT_DIR$/include/hydrosheds/rasterize.hh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hydrosheds.cc" beforeDir="false" afterPath="$PROJECT_DIR$/src/hydrosheds.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/rasterize.cc" beforeDir="false" afterPath="$PROJECT_DIR$/src/rasterize.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -142,7 +134,7 @@
       <workItem from="1624130497769" duration="1541000" />
       <workItem from="1624203694822" duration="3443000" />
       <workItem from="1624229297000" duration="9034000" />
-      <workItem from="1624289434330" duration="833000" />
+      <workItem from="1624289434330" duration="2156000" />
     </task>
     <task id="LOCAL-00001" summary="Tasks of week 30.4-7.5 &#10;&#10;building and running hydrosheds_app.cc">
       <created>1620164287004</created>
