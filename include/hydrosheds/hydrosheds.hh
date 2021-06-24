@@ -55,6 +55,7 @@ namespace hydrosheds
 		RiverSegment ConstructSegment() const;
 
 	private:
+		GDALDataset* data;
 		OGRLayer* layer;
 	};
 
@@ -150,13 +151,6 @@ namespace hydrosheds
 		{
 			return this->feature->GetFID();
 		}
-		
-
-	private:
-		/** @brief Private constructor
-		 * Constructs by default the first subsegment of the first feature.
-		 */
-		RiverSegment(OGRFeature*, OGRLayer*, int);
 
 		/** @brief Search feature
 		 * Search the feature with number (ID) 
@@ -164,8 +158,16 @@ namespace hydrosheds
 		 * is not the HYRIV_ID. 
 		 */
 		OGRFeature* search_feature(unsigned int) const;
+		
 
-		OGRLayer* layer;
+	private:
+		/** @brief Private constructor
+		 * Constructs by default the first subsegment of the first feature.
+		 */
+		RiverSegment(OGRFeature*, int);
+
+
+		static OGRLayer* layer;
 		OGRFeature* feature;
 		unsigned long int segment; 
 		std::vector <Coordinate> segment_points;  

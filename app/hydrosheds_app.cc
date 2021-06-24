@@ -8,6 +8,9 @@
 
 using namespace hydrosheds;
 
+// static layer declaration
+OGRLayer* RiverSegment::layer;
+
 /* -- FREE FUNCTIONS -- */
 void print_coordinate(Coordinate p)
 {
@@ -20,7 +23,7 @@ void print_coordinate(Coordinate p)
 HydroshedsDataSet::HydroshedsDataSet(const std::string& path)
 {
     GDALAllRegister();
-    GDALDataset* data;
+    // GDALDataset* data;
     data = (GDALDataset*) GDALOpenEx(path.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
     if(data == NULL)
     {
@@ -28,16 +31,6 @@ HydroshedsDataSet::HydroshedsDataSet(const std::string& path)
         exit(1);
     }
     layer = data->GetLayer(0);
-    std::string layer_name = layer->GetName();
-    std::cout << " --- SQL Test Start --- " << std::endl;
-
-    std::string hyriv_id = "40000019";
-    std::string query = "SELECT * FROM " + layer_name + " WHERE HYRIV_ID = " + hyriv_id;
-    OGRLayer* l = data->ExecuteSQL(query.c_str(), NULL, NULL);
-    std::cout << l->GetNextFeature()->GetFieldAsInteger("HYRIV_ID") << std::endl;
-
-    std::cout << " --- SQL Test End --- " << std::endl;
-
 }
 
 std::array <unsigned long long, 2> HydroshedsDataSet::shape() const
@@ -62,14 +55,15 @@ void HydroshedsDataSet::FeatureAttributes() const
 
 RiverSegment HydroshedsDataSet::ConstructSegment() const
 {
-    OGRFeature* f = layer->GetFeature(1);
-    RiverSegment s(f, layer, 0);
+    RiverSegment::layer = this->layer;
+    OGRFeature* f = this->layer->GetFeature(1);
+    RiverSegment s(f, 0);
     return s;
 }
 
 /* -- CLASS RIVER SEGMENT -- */
-RiverSegment::RiverSegment(OGRFeature* f, OGRLayer* l, int seg_num)
-    : feature(f), layer(l)
+RiverSegment::RiverSegment(OGRFeature* f, int seg_num)
+    : feature(f)
 {
     segment = seg_num;
     // std::cout << "Constructing segment: " << std::endl;
@@ -96,7 +90,6 @@ RiverSegment::RiverSegment(OGRFeature* f, OGRLayer* l, int seg_num)
 RiverSegment::RiverSegment(const RiverSegment& R)
 {
     this->feature = R.feature;
-    this->layer = R.layer;
     this->segment = R.segment;
     OGRGeometry* geometry = R.feature -> GetGeometryRef();
     OGRMultiLineString* GLine = geometry->toMultiLineString();
@@ -114,7 +107,6 @@ RiverSegment::RiverSegment(const RiverSegment& R)
 RiverSegment& RiverSegment::operator=(RiverSegment& R)
 {
     this->feature = R.feature;
-    this->layer = R.layer;
     this->segment = R.segment;
     OGRGeometry* geometry = R.feature -> GetGeometryRef();
     OGRMultiLineString* GLine = geometry->toMultiLineString();
@@ -225,10 +217,21 @@ bool RiverSegment::hasDownstreamSegment() const
 
 OGRFeature* RiverSegment::search_feature(unsigned int NEXT_DOWN_ID) const
 {
+    // std::string layer_name = layer->GetName();
+    // std::cout << " --- SQL Test Start --- " << std::endl;
+
+    // std::string next_hyriv_id = std::to_string(NEXT_DOWN_ID);
+    // std::string query = "SELECT * FROM " + layer_name + " WHERE HYRIV_ID = " + next_hyriv_id;
+    // layer->SetAttributeFilter(query.c_str());
+    // // OGRLayer* l = data->ExecuteSQL(query.c_str(), NULL, NULL);
+    // std::cout << layer->GetNextFeature()->GetFieldAsInteger("HYRIV_ID") << std::endl;
+    // layer->ResetReading();
+    // std::cout << " --- SQL Test End --- " << std::endl;
+    
     OGRFeature* f_iter;
     OGRFeature* f_ret;
-    layer->ResetReading();
-    while((f_iter = layer->GetNextFeature()) != NULL)
+    RiverSegment::layer->ResetReading();
+    while((f_iter = RiverSegment::layer->GetNextFeature()) != NULL)
     {
         if(f_iter->GetFieldAsInteger("HYRIV_ID") == NEXT_DOWN_ID)
         {
@@ -261,7 +264,7 @@ RiverSegment RiverSegment::getDownstreamSegment()
     // std::cout << "From downstream feature ID: " << f->GetFID() << std::endl;
     
     int new_segment_id = this->segment + 1;
-    RiverSegment s(f, layer, new_segment_id);
+    RiverSegment s(f, new_segment_id);
     return s;
 }
 
@@ -299,31 +302,31 @@ int main(int argc, char** argv)
         }
         i++;
     } */
-    // std::cout << "Current subsegment: " << R.get_segment() << std::endl;
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R1 = R.getDownstreamSegment();
-    // std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R1.get_segment() << std::endl;
+    std::cout << "Current subsegment: " << R.get_segment() << std::endl;
+    std::cout << "Getting downstream segments..." << std::endl;
+    RiverSegment R1 = R.getDownstreamSegment();
+    std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
+    std::cout << "Current subsegment: " << R1.get_segment() << std::endl;
 
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R2 = R1.getDownstreamSegment();
-    // std::cout << "Feature index: " << R2.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R2.get_segment() << std::endl;
+    std::cout << "Getting downstream segments..." << std::endl;
+    RiverSegment R2 = R1.getDownstreamSegment();
+    std::cout << "Feature index: " << R2.getfeature_index() << std::endl;
+    std::cout << "Current subsegment: " << R2.get_segment() << std::endl;
 
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R3 = R2.getDownstreamSegment();
-    // std::cout << "Feature index: " << R3.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R3.get_segment() << std::endl;
+    std::cout << "Getting downstream segments..." << std::endl;
+    RiverSegment R3 = R2.getDownstreamSegment();
+    std::cout << "Feature index: " << R3.getfeature_index() << std::endl;
+    std::cout << "Current subsegment: " << R3.get_segment() << std::endl;
 
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R4 = R3.getDownstreamSegment();
-    // std::cout << "Feature index: " << R4.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R4.get_segment() << std::endl;
+    std::cout << "Getting downstream segments..." << std::endl;
+    RiverSegment R4 = R3.getDownstreamSegment();
+    std::cout << "Feature index: " << R4.getfeature_index() << std::endl;
+    std::cout << "Current subsegment: " << R4.get_segment() << std::endl;
 
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R5 = R4.getDownstreamSegment();
-    // std::cout << "Feature index: " << R5.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R5.get_segment() << std::endl;
+    std::cout << "Getting downstream segments..." << std::endl;
+    RiverSegment R5 = R4.getDownstreamSegment();
+    std::cout << "Feature index: " << R5.getfeature_index() << std::endl;
+    std::cout << "Current subsegment: " << R5.get_segment() << std::endl;
 
     return 0;
 }
