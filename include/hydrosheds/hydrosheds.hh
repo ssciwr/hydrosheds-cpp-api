@@ -112,18 +112,20 @@ namespace hydrosheds
 		/** @brief Starting point of current subsegment
 		 * Returns the starting point of the subsegment (who's index, starting 0, 
 		 * is stored in @c segment ) in geological coordinates.
+		 * @param seg starts at 0 (for the first segment).
 		 */
 		Coordinate getStartingPoint(int) const;
 
 		/** @brief End point of current subsegment
 		 * Returns the End point of the subsegment who's index (starting 0) 
 		 * is stored in @c segment in geological coordinates.
+		 * @param seg starts at 0 (for the first segment).
 		 */
 		Coordinate getEndPoint(int) const;
 
 		/** @brief Existence of next downstream segment
 		 * Returns @c bool depending on whether a 
-		 * downstream exists. Returns to true even if the 
+		 * downstream segment/feature exists. Returns to true even if the 
 		 * @c feature needs to be shifted.
 		 */
 		bool hasDownstreamSegment() const; 
@@ -151,13 +153,6 @@ namespace hydrosheds
 		{
 			return this->feature->GetFID();
 		}
-
-		/** @brief Search feature
-		 * Search the feature with number (ID) 
-		 * @c ID . The ID is the feature number and
-		 * is not the HYRIV_ID. 
-		 */
-		OGRFeature* search_feature(unsigned int) const;
 		
 
 	private:
@@ -166,7 +161,16 @@ namespace hydrosheds
 		 */
 		RiverSegment(OGRFeature*, int);
 
-		// static GDALDataset* data;
+		/** @brief Search feature
+		 * Search the feature with the HYRIV _ID
+		 * @param NEXT_DOWN_ID. 
+		 * Uses an SQL Query to search
+		 * feature with a particular @c HYRIV_ID .
+		 * by setting the search criterion of 
+		 * @c OGRLayer::GetNextFeature() .
+		 */
+		OGRFeature* search_feature(unsigned int) const;
+
 		static OGRLayer* layer;
 		OGRFeature* feature;
 		unsigned long int segment; 
