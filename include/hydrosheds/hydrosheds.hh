@@ -166,7 +166,7 @@ namespace hydrosheds
 		 */
 		RiverSegment(OGRFeature*, int);
 
-
+		// static GDALDataset* data;
 		static OGRLayer* layer;
 		OGRFeature* feature;
 		unsigned long int segment; 

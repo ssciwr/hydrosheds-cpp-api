@@ -188,7 +188,6 @@ Coordinate RiverSegment::getStartingPoint(int seg) const
 
 Coordinate RiverSegment::getEndPoint(int seg) const
 {
-    /* Know the subsegment from construction */ 
     int count = 0;
     Coordinate p;
     for(int i = 1; i < segment_points.size(); i += 2)
@@ -217,29 +216,28 @@ bool RiverSegment::hasDownstreamSegment() const
 
 OGRFeature* RiverSegment::search_feature(unsigned int NEXT_DOWN_ID) const
 {
-    // std::string layer_name = layer->GetName();
-    // std::cout << " --- SQL Test Start --- " << std::endl;
 
-    // std::string next_hyriv_id = std::to_string(NEXT_DOWN_ID);
-    // std::string query = "SELECT * FROM " + layer_name + " WHERE HYRIV_ID = " + next_hyriv_id;
-    // layer->SetAttributeFilter(query.c_str());
-    // // OGRLayer* l = data->ExecuteSQL(query.c_str(), NULL, NULL);
-    // std::cout << layer->GetNextFeature()->GetFieldAsInteger("HYRIV_ID") << std::endl;
-    // layer->ResetReading();
-    // std::cout << " --- SQL Test End --- " << std::endl;
-    
-    OGRFeature* f_iter;
-    OGRFeature* f_ret;
+    std::string query = "HYRIV_ID = " + std::to_string(NEXT_DOWN_ID);
+    layer->SetAttributeFilter(query.c_str());
+    // OGRLayer* l = data->ExecuteSQL(query.c_str(), NULL, NULL);
+    // std::cout << RiverSegment::layer->GetNextFeature()->GetFieldAsInteger("HYRIV_ID") << std::endl;
     RiverSegment::layer->ResetReading();
-    while((f_iter = RiverSegment::layer->GetNextFeature()) != NULL)
-    {
-        if(f_iter->GetFieldAsInteger("HYRIV_ID") == NEXT_DOWN_ID)
-        {
-            f_ret = f_iter;
-            break;
-        }
-    }
-    return f_ret;
+    // std::cout << " --- SQL Test End --- " << std::endl;
+    return RiverSegment::layer->GetNextFeature(); 
+    
+    /* -- standard search -- */
+    // OGRFeature* f_iter;
+    // OGRFeature* f_ret;
+    // RiverSegment::layer->ResetReading();
+    // while((f_iter = RiverSegment::layer->GetNextFeature()) != NULL)
+    // {
+    //     if(f_iter->GetFieldAsInteger("HYRIV_ID") == NEXT_DOWN_ID)
+    //     {
+    //         f_ret = f_iter;
+    //         break;
+    //     }
+    // }
+    // return f_ret;
 }
 
 RiverSegment RiverSegment::getDownstreamSegment()
