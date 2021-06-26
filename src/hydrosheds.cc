@@ -164,8 +164,7 @@ namespace hydrosheds {
     bool FullDatasetRiverSegmentIterator::operator!=(const FullDatasetRiverSegmentIterator& a)
     {
         bool result;
-        //result = feature->Equal(a.feature);
-        result = feature == a.feature;
+        result = (*this) != a;
         return !result; // do pointer equality
     }
 
@@ -183,18 +182,59 @@ namespace hydrosheds {
 
     /// followbegin() and followend()
 /*
-    DownstreamIteratorHelper HydroshedsDataSet::followbegin()
+    DownstreamIteratorHelper HydroshedsDataSet::followbegin() const
     {
         this->begin();
     }
 
-    DownstreamIteratorHelper HydroshedsDataSet::followend()
+    DownstreamIteratorHelper HydroshedsDataSet::followend() const
     {
 
         DownstreamIteratorHelper end();
         return end;
     }
 */
+
+
+    // DowmstreamIterator
+    DownstreamIterator DownstreamIterator::operator++()
+    {
+        auto next = this->segment.getDownstreamSegment();
+        this->segment = next;
+        return (*this);
+    }
+
+    DownstreamIterator DownstreamIterator::operator++(int)
+    {
+        auto result = (*this);
+        auto next = this->segment.getDownstreamSegment();
+        this->segment = next;
+        return result;
+    }
+    bool DownstreamIterator::operator==(const DownstreamIterator& a)
+    {
+        auto feature = this->segment.feature;
+        auto aFeature = a.segment.feature;
+        bool result = feature == aFeature;
+        return result;
+    }
+    bool DownstreamIterator::operator!=(const DownstreamIterator& a)
+    {
+        auto feature = this->segment.feature;
+        auto aFeature = a.segment.feature;
+        bool result = feature == aFeature;
+        return !result;
+    }
+
+    RiverSegment* DownstreamIterator::operator->()
+    {
+        return &segment;
+    }
+
+    RiverSegment& DownstreamIterator::operator*()
+    {
+        return segment;
+    }
 
 
 
@@ -209,9 +249,9 @@ namespace hydrosheds {
             DownstreamIterationHelper result{dataset, x};
             return result;
         }
-/*
+
         // DownstreamIteratorHelper
-        DownstreamIterator DownstreamIterationHelper::begin()
+        DownstreamIterator DownstreamIterationHelper::begin() const
         {
             auto feature = dataset.layer->GetFeature(0);
             RiverSegment segment(dataset.layer, feature);
@@ -229,83 +269,21 @@ namespace hydrosheds {
             DownstreamIterator result(segment);
             return result;
         }
-*/
+
         // ----------------------------
 
 
         // DownstreamIteratorHelper end();
-        DownstreamIterator DownstreamIterationHelper::end()
+        DownstreamIterator DownstreamIterationHelper::end() const
         {
-            /*
-            auto segment = dataset.getSegment();
-            for(int i = 0; 1; i++)
+            auto feature = dataset.layer->GetFeature(0);
+            RiverSegment segment(dataset.layer, feature);
+            DownstreamIterator end(segment);
+            if(end.isEndSegment == true)
             {
-                if (!segment.hasDownstreamSegment())
-                {
-                    DownstreamIterator end(segment);
-                    return end;
-                }
-            }
-             */
-        }
-
-
-        // ----------------------------
-
-        // DowmstreamIterator
-        DownstreamIterator DownstreamIterator::operator++()
-        {
-            auto next = this->segment.getDownstreamSegment();
-            this->segment = next;
-            return (*this);
-        }
-
-        DownstreamIterator DownstreamIterator::operator++(int)
-        {
-            auto result = (*this);
-            auto next = this->segment.getDownstreamSegment();
-            this->segment = next;
-            return result;
-        }
-        bool DownstreamIterator::operator==(const DownstreamIterator& a)
-        {
-            auto a_x = a.segment.getStartingPoint();
-            auto a_y = a.segment.getEndPoint();
-            auto _x = this->segment.getStartingPoint();
-            auto _y = this->segment.getEndPoint();
-            if(a_x[0]==_x[0] && a_x[1]==_x[1] && a_y[0]==_y[0] && a_y[1]==_y[1])
-            {
-                return true;
-            }else{
-                return false;
+                return end;
             }
         }
-        bool DownstreamIterator::operator!=(const DownstreamIterator& a)
-        {
-            auto a_x = a.segment.getStartingPoint();
-            auto a_y = a.segment.getEndPoint();
-            auto _x = this->segment.getStartingPoint();
-            auto _y = this->segment.getEndPoint();
-            if(a_x[0]==_x[0] && a_x[1]==_x[1] && a_y[0]==_y[0] && a_y[1]==_y[1])
-            {
-                return false;
-            }else{
-                return true;
-            }
-        }
-
-        RiverSegment* DownstreamIterator::operator->()
-        {
-            return &segment;
-        }
-
-        RiverSegment& DownstreamIterator::operator*()
-        {
-            return segment;
-        }
-
-
-
     }
 
 } // namespace hydrosheds

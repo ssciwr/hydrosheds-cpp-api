@@ -26,17 +26,28 @@ namespace hydrosheds {
 
         // Iterator access for Feature Iteration
 
+        /** @brief returns the first Iterator of the HydroShedsDataSet
+         *
+         *          important: calling this method multiple times may lead to different result
+         *
+         * @return the first iterator of the HydroShedsDataSet
+         */
         FullDatasetRiverSegmentIterator begin() const;
+
+        /** @brief This method returns the last iterator of the HydroShedsDataSet class
+         *
+         * @return the last iterator of the HydroShedsDataSet
+         */
         FullDatasetRiverSegmentIterator end() const;
 
         // Iterator access for Segment Iteration
-        DownstreamIteratorHelper followbegin();
-        DownstreamIteratorHelper followend();
+        DownstreamIteratorHelper followbegin() const;
+        DownstreamIteratorHelper followend() const;
 
         // Not intended to stay - just get some segment
         RiverSegment getSegment();
 
-    private:
+    //private:
         friend class DownstreamIteratorHelper;
         friend class DownstreamIterator;
         friend class RiverSegment;
@@ -56,15 +67,12 @@ namespace hydrosheds {
         Coordinate getStartingPoint() const;
         Coordinate getEndPoint() const;
 
-        OGRFeature* getFeature(){return feature;};
-        OGRLayer* getLayer(){return layer;};
-
         bool hasDownstreamSegment() const;
         RiverSegment getDownstreamSegment() const;
         // What about upstream segments - is it possible?
 
 
-    private:
+    //private:
         friend class HydroshedsDataSet;
         friend class FullDatasetRiverSegmentIterator;
         friend class DownstreamIteratorHelper;
@@ -86,9 +94,9 @@ namespace hydrosheds {
 
         /** @brief Constructs an iterator with a given OGRFeature and OGRLayer
         *
-         *   This Constructor initializes the segment with the two given parameters
-         *
-         *
+        *   This Constructor initializes the segment with the two given parameters
+        *
+        *
         *   @param ogrFeature that this iterator should be validating against
         *  @param ogrLayer that this layer should be validating the layer
         */
@@ -151,29 +159,31 @@ namespace hydrosheds {
     };
 
 
+    class DownstreamIterator{
+    public:
+        bool isEndSegment;
+        RiverSegment segment;
+        DownstreamIterator(RiverSegment riverSegment): segment(riverSegment), isEndSegment(riverSegment.hasDownstreamSegment()){};
+        //DownstreamIterator() = default;
+
+
+        DownstreamIterator operator++();
+        DownstreamIterator operator++(int);
+
+        bool operator==(const DownstreamIterator& a);
+        bool operator!=(const DownstreamIterator& a);
+
+        RiverSegment* operator->();
+        RiverSegment& operator*();
+    };
 
     namespace impl{
         double norm(hydrosheds::Coordinate x, hydrosheds::Coordinate y);
 
-        struct DownstreamIterator{
 
-            bool isEndSegment;
-            RiverSegment segment;
-            DownstreamIterator(RiverSegment riverSegment): segment(riverSegment){};
-
-
-            DownstreamIterator operator++();
-            DownstreamIterator operator++(int);
-
-            bool operator==(const DownstreamIterator& a);
-            bool operator!=(const DownstreamIterator& a);
-
-            RiverSegment* operator->();
-            RiverSegment& operator*();
-        };
-
-        struct DownstreamIterationHelper
+        class DownstreamIterationHelper
         {
+        public:
             const hydrosheds::HydroshedsDataSet& dataset;
             hydrosheds::Coordinate x;
             bool hasDownSegment;
@@ -182,8 +192,8 @@ namespace hydrosheds {
             DownstreamIterationHelper(const hydrosheds::HydroshedsDataSet& dataset_, hydrosheds::Coordinate x_)
             : dataset(dataset_), x(x_) {};
 
-            DownstreamIterator begin();
-            DownstreamIterator end();
+            DownstreamIterator begin() const;
+            DownstreamIterator end() const;
         };
 
 
