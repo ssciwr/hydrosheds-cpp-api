@@ -63,16 +63,16 @@ RiverSegment HydroshedsDataSet::ConstructSegment() const
 
 /* -- CLASS RIVER SEGMENT -- */
 RiverSegment::RiverSegment(OGRFeature* f, int seg_num)
-    : feature(f)
+    : feature(f), segment(seg_num)
 {
-    segment = seg_num;
+    // segment = seg_num;
     // std::cout << "Constructing segment: " << std::endl;
     // std::cout << "\t";
     // std::cout << "Feature HYRIV: " << feature->GetFID() << "\n";
     // std::cout << "\t";
     // std::cout << "segment num: " << segment << "\n";
     // set vector of subsegments of current feature
-    OGRGeometry* geometry = f -> GetGeometryRef();
+    OGRGeometry* geometry = f->GetGeometryRef();
     OGRMultiLineString* GLine = geometry->toMultiLineString();
     this->segment_points.clear();
     for(auto multi_line_string: *(GLine))
@@ -91,7 +91,7 @@ RiverSegment::RiverSegment(const RiverSegment& R)
 {
     this->feature = R.feature;
     this->segment = R.segment;
-    OGRGeometry* geometry = R.feature -> GetGeometryRef();
+    OGRGeometry* geometry = R.feature->GetGeometryRef();
     OGRMultiLineString* GLine = geometry->toMultiLineString();
     this->segment_points.clear();
     for(auto multi_line_string: *(GLine))
@@ -104,24 +104,24 @@ RiverSegment::RiverSegment(const RiverSegment& R)
     }
 }
 
-RiverSegment& RiverSegment::operator=(RiverSegment& R)
-{
-    this->feature = R.feature;
-    this->segment = R.segment;
-    OGRGeometry* geometry = R.feature -> GetGeometryRef();
-    OGRMultiLineString* GLine = geometry->toMultiLineString();
-    this->segment_points.clear();
-    for(auto multi_line_string: *(GLine))
-    {
-        for(auto point: *(multi_line_string))
-        {
-            Coordinate p = {point.getX(), point.getY()};
-            this->segment_points.push_back(p);
-        }
-    }
+// RiverSegment& RiverSegment::operator=(RiverSegment& R)
+// {
+//     this->feature = R.feature;
+//     this->segment = R.segment;
+//     OGRGeometry* geometry = R.feature -> GetGeometryRef();
+//     OGRMultiLineString* GLine = geometry->toMultiLineString();
+//     this->segment_points.clear();
+//     for(auto multi_line_string: *(GLine))
+//     {
+//         for(auto point: *(multi_line_string))
+//         {
+//             Coordinate p = {point.getX(), point.getY()};
+//             this->segment_points.push_back(p);
+//         }
+//     }
 
-    return *this; 
-}
+//     return *this; 
+// }
 
 void RiverSegment::test_geometry() const
 {
@@ -217,11 +217,11 @@ bool RiverSegment::hasDownstreamSegment() const
 OGRFeature* RiverSegment::search_feature(unsigned int NEXT_DOWN_ID) const
 {
 
+    RiverSegment::layer->ResetReading(); 
     std::string query = "HYRIV_ID = " + std::to_string(NEXT_DOWN_ID);
     layer->SetAttributeFilter(query.c_str());
     // OGRLayer* l = data->ExecuteSQL(query.c_str(), NULL, NULL);
     // std::cout << RiverSegment::layer->GetNextFeature()->GetFieldAsInteger("HYRIV_ID") << std::endl;
-    RiverSegment::layer->ResetReading();
     // std::cout << " --- SQL Test End --- " << std::endl;
     return RiverSegment::layer->GetNextFeature(); 
     
@@ -251,21 +251,21 @@ RiverSegment RiverSegment::getDownstreamSegment()
 
     // Need better memory management.
     OGRFeature* f;
+    int new_segment_id;
     if(this->segment < this->get_number_of_subsegments() - 1)
     {
         f = feature;
+        new_segment_id = this->segment + 1;
     } 
     else
     {
         f = this->search_feature(feature->GetFieldAsInteger("NEXT_DOWN"));
+        new_segment_id = 0;
     }
-    // std::cout << "From downstream feature ID: " << f->GetFID() << std::endl;
-    
-    int new_segment_id = this->segment + 1;
+    // new_segment_id = this->segment + 1;
     RiverSegment s(f, new_segment_id);
     return s;
 }
-
 
 int main(int argc, char** argv)
 {
@@ -289,42 +289,59 @@ int main(int argc, char** argv)
     // std::cout << R.getTotalLength() << std::endl;
     // std::cout << R.getGeologicalLength() << std::endl;
     std::cout << std::setprecision(2);
-    /* RiverSegment S = R;
-    int i = 0;
+    /* int i = 0;
     while(i < 100)
     {
-        S = S.getDownstreamSegment();
-        if(S.get_segment() == S.get_number_of_subsegments() - 1)
+        R = R.getDownstreamSegment();
+        if(R.get_segment() == R.get_number_of_subsegments() - 1)
         {
             std::cout << "feature index: " << R.getfeature_index() << std::endl;
         }
         i++;
     } */
-    std::cout << "Current subsegment: " << R.get_segment() << std::endl;
-    std::cout << "Getting downstream segments..." << std::endl;
-    RiverSegment R1 = R.getDownstreamSegment();
-    std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
-    std::cout << "Current subsegment: " << R1.get_segment() << std::endl;
+    RiverSegment R1 = R;
+    for(int i = 1; i < 100; i++)
+    {
+        std::cout << "Getting downstream segments..." << std::endl;
+        R1 = R1.getDownstreamSegment(); 
+        std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
+        std::cout << "Current subsegment: " << R1.get_segment() << std::endl; 
+    }
+    // std::cout << "Current subsegment: " << R.get_segment() << std::endl;
+    // std::cout << "Getting downstream segments..." << std::endl;
+    // RiverSegment R1 = R.getDownstreamSegment();
+    // std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
+    // std::cout << "Current subsegment: " << R1.get_segment() << std::endl;
 
-    std::cout << "Getting downstream segments..." << std::endl;
-    RiverSegment R2 = R1.getDownstreamSegment();
-    std::cout << "Feature index: " << R2.getfeature_index() << std::endl;
-    std::cout << "Current subsegment: " << R2.get_segment() << std::endl;
+    // std::cout << "Getting downstream segments..." << std::endl;
+    // RiverSegment R2 = R1.getDownstreamSegment();
+    // std::cout << "Feature index: " << R2.getfeature_index() << std::endl;
+    // std::cout << "Current subsegment: " << R2.get_segment() << std::endl;
 
-    std::cout << "Getting downstream segments..." << std::endl;
-    RiverSegment R3 = R2.getDownstreamSegment();
-    std::cout << "Feature index: " << R3.getfeature_index() << std::endl;
-    std::cout << "Current subsegment: " << R3.get_segment() << std::endl;
+    // std::cout << "Getting downstream segments..." << std::endl;
+    // RiverSegment R3 = R2.getDownstreamSegment();
+    // std::cout << "Feature index: " << R3.getfeature_index() << std::endl;
+    // std::cout << "Current subsegment: " << R3.get_segment() << std::endl;
 
-    std::cout << "Getting downstream segments..." << std::endl;
-    RiverSegment R4 = R3.getDownstreamSegment();
-    std::cout << "Feature index: " << R4.getfeature_index() << std::endl;
-    std::cout << "Current subsegment: " << R4.get_segment() << std::endl;
+    // std::cout << "Getting downstream segments..." << std::endl;
+    // RiverSegment R4 = R3.getDownstreamSegment();
+    // std::cout << "Feature index: " << R4.getfeature_index() << std::endl;
+    // std::cout << "Current subsegment: " << R4.get_segment() << std::endl;
 
-    std::cout << "Getting downstream segments..." << std::endl;
-    RiverSegment R5 = R4.getDownstreamSegment();
-    std::cout << "Feature index: " << R5.getfeature_index() << std::endl;
-    std::cout << "Current subsegment: " << R5.get_segment() << std::endl;
+    // std::cout << "Getting downstream segments..." << std::endl;
+    // RiverSegment R5 = R4.getDownstreamSegment();
+    // std::cout << "Feature index: " << R5.getfeature_index() << std::endl;
+    // std::cout << "Current subsegment: " << R5.get_segment() << std::endl;
 
+    // std::cout << "Getting downstream segments..." << std::endl;
+    // RiverSegment R6 = R5.getDownstreamSegment();
+    // std::cout << "Feature index: " << R6.getfeature_index() << std::endl;
+    // std::cout << "Current subsegment: " << R6.get_segment() << std::endl;
+
+    // std::cout << "Getting downstream segments..." << std::endl;
+    // RiverSegment R7 = R6.getDownstreamSegment();
+    // std::cout << "Feature index: " << R7.getfeature_index() << std::endl;
+    // std::cout << "Current subsegment: " << R7.get_segment() << std::endl;
+ 
     return 0;
 }

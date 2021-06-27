@@ -71,14 +71,16 @@ namespace hydrosheds
 
 		/** @brief Copy Constructor
 		 * Implements deep copies.
-		 * Copies entitie in @param RiverSegment 
-		 * has to deal with the feature pointer
+		 * Copies entities in @param R.
+		 * Deals with the feature pointer.
 	 	 */	
 		RiverSegment(const RiverSegment&);
 
 		/** @brief Assignment Operator
+		 * @param R is the other @c RiverSegment
+		 * object.
 	 	 */		
-		RiverSegment& operator=(RiverSegment&);
+		// RiverSegment& operator=(RiverSegment&);
 
 		void test_geometry() const;
 
@@ -157,13 +159,14 @@ namespace hydrosheds
 
 	private:
 		/** @brief Private constructor
-		 * Constructs by default the first subsegment of the first feature.
+		 * Constructs by default the first subsegment 
+		 * of the first feature. Construction
 		 */
 		RiverSegment(OGRFeature*, int);
 
 		/** @brief Search feature
-		 * Search the feature with the HYRIV _ID
-		 * @param NEXT_DOWN_ID. 
+		 * Search the feature with the HYRIV_ID
+		 * @param NEXT_DOWN_ID . 
 		 * Uses an SQL Query to search
 		 * feature with a particular @c HYRIV_ID .
 		 * by setting the search criterion of 
