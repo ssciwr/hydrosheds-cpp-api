@@ -11,14 +11,6 @@ using namespace hydrosheds;
 // static layer declaration
 OGRLayer* RiverSegment::layer;
 
-/* -- FREE FUNCTIONS -- */
-void print_coordinate(Coordinate p)
-{
-    std::cout << std::setprecision(13);
-    std::cout << "(" << p[0] << ", " << p[1] << ")" << std::endl; 
-    std::cout << std::setprecision(2);
-}
-
 /* -- CLASS HYDROSHEDS DATA SET -- */
 HydroshedsDataSet::HydroshedsDataSet(const std::string& path)
 {
@@ -48,9 +40,9 @@ void HydroshedsDataSet::FeatureAttributes() const
     feature = layer->GetNextFeature();
     for(int i = 0; i < feature->GetFieldCount(); i++)
     {
-        // GetDefnRef() returns an object of the OGRFeatureDefn class. GetFieldDefn() returns an object of the class OGRFeatureDefn
         std::cout << feature->GetDefnRef()->GetFieldDefn(i)->GetNameRef() << " ";
     }
+    std::cout << std::endl;
 }
 
 RiverSegment HydroshedsDataSet::ConstructSegment() const
@@ -65,13 +57,6 @@ RiverSegment HydroshedsDataSet::ConstructSegment() const
 RiverSegment::RiverSegment(OGRFeature* f, int seg_num)
     : feature(f), segment(seg_num)
 {
-    // segment = seg_num;
-    // std::cout << "Constructing segment: " << std::endl;
-    // std::cout << "\t";
-    // std::cout << "Feature HYRIV: " << feature->GetFID() << "\n";
-    // std::cout << "\t";
-    // std::cout << "segment num: " << segment << "\n";
-    // set vector of subsegments of current feature
     OGRGeometry* geometry = f->GetGeometryRef();
     OGRMultiLineString* GLine = geometry->toMultiLineString();
     this->segment_points.clear();
@@ -79,8 +64,6 @@ RiverSegment::RiverSegment(OGRFeature* f, int seg_num)
     {
         for(auto point: *(multi_line_string))
         {
-            // set segment start and end points
-            // point is an OGRPoint 
             Coordinate p = {point.getX(), point.getY()};
             this->segment_points.push_back(p);
         }
@@ -104,33 +87,16 @@ RiverSegment::RiverSegment(const RiverSegment& R)
     }
 }
 
-// RiverSegment& RiverSegment::operator=(RiverSegment& R)
-// {
-//     this->feature = R.feature;
-//     this->segment = R.segment;
-//     OGRGeometry* geometry = R.feature -> GetGeometryRef();
-//     OGRMultiLineString* GLine = geometry->toMultiLineString();
-//     this->segment_points.clear();
-//     for(auto multi_line_string: *(GLine))
-//     {
-//         for(auto point: *(multi_line_string))
-//         {
-//             Coordinate p = {point.getX(), point.getY()};
-//             this->segment_points.push_back(p);
-//         }
-//     }
-
-//     return *this; 
-// }
-
-void RiverSegment::test_geometry() const
+auto RiverSegment::summary(bool verbose = false) const
 {
-    std::cout << std::setprecision(13);
-    for(auto point: segment_points)
+    std::tuple <const char*, int, double> inf(this->feature->GetGeometryRef()->getGeometryName(), this->get_number_of_subsegments(), feature->GetFieldAsDouble("LENGTH_KM"));
+    if(verbose == true)
     {
-        std::cout << point[0] << ", " <<  point[1] << std::endl;
+        std::cout << "Geometry type of current feature: " << std::get <const char*>(inf) << "\n";
+        std::cout << "Number of subsegments in feature: " << std::get <int>(inf) << "\n";
+        std::cout << "Geological length of feature (in Km): " << std::get <double>(inf) << std::endl;
     }
-    std::cout << std::setprecision(2);
+    return inf;
 }
 
 int RiverSegment::get_number_of_subsegments() const
@@ -281,24 +247,16 @@ int main(int argc, char** argv)
     // Initialise a river segment object.
     RiverSegment R = D.ConstructSegment();
     // Initial testing
-    std::cout << "TEST GEOMETRY" << std::endl;
-    R.test_geometry();
-    std::cout << std::setprecision(13);
-    std::cout << "Shape: " << D.shape()[0] << " " << D.shape()[1] << std::endl;
-    // std::cout << R.getLength() << std::endl;
-    // std::cout << R.getTotalLength() << std::endl;
-    // std::cout << R.getGeologicalLength() << std::endl;
-    std::cout << std::setprecision(2);
-    /* int i = 0;
-    while(i < 100)
-    {
-        R = R.getDownstreamSegment();
-        if(R.get_segment() == R.get_number_of_subsegments() - 1)
-        {
-            std::cout << "feature index: " << R.getfeature_index() << std::endl;
-        }
-        i++;
-    } */
+    std::cout << "SUMMARY" << std::endl;
+    R.summary(true);
+    std::cout << "Shape: " << "(" << D.shape()[0] 
+            << ", "  << D.shape()[1] << ")" << std::endl;
+    std::cout << "LENGTHS ------" << std::endl;
+    std::cout << R.getLength() << std::endl;
+    std::cout << R.getTotalLength() << std::endl;
+    std::cout << R.getGeologicalLength() << std::endl;
+    
+    std::cout << "DOWNSTREAM ITERATION ------" << std::endl;
     RiverSegment R1 = R;
     for(int i = 1; i < 100; i++)
     {

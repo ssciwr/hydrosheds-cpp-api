@@ -76,13 +76,14 @@ namespace hydrosheds
 	 	 */	
 		RiverSegment(const RiverSegment&);
 
-		/** @brief Assignment Operator
-		 * @param R is the other @c RiverSegment
-		 * object.
-	 	 */		
-		// RiverSegment& operator=(RiverSegment&);
-
-		void test_geometry() const;
+		/** @brief Summary of Current Feature
+		 * Produces a summary of the basic attributes
+		 * of the current feature stored in @c feature .
+		 * @param verbose allows for a more detailed
+		 * description. The function returns a tuple
+		 * @c (geometry_type, @c number_of_subsegments, @c feature_length) .
+		 */
+		auto summary(bool) const;
 
 		/** @brief Length of current subsegment
 		 * Returns the calculated length of the subsegment (who's index, starting 0, 
