@@ -34,6 +34,8 @@ namespace hydrosheds
 		/** @brief Primary constructor
 		 * Initialises the dataset using an input path from the command line.
 		 * @param path Path to file.
+		 * @param l_num is the layer number to be initailised.
+		 * Defaults to 0 (first layer).
 		 */  
 		HydroshedsDataSet(const std::string&);
 
@@ -51,8 +53,18 @@ namespace hydrosheds
 		 * Constructs an instance of the subsegment interface.
 		 * By defeault the contructor holds the passes the first subsegment  
 		 * of the first feature in the dataset. 
+		 * @param seg_num can be used to specify which subsegment
+		 * of the feature will be constructed. This may 
+		 * throw an error as @c seg_num may exceed the number
+		 * of subsegments in the feature. 
+		 * ( @param x_min, @param y_min) and ( @param x_max, @param y_max)
+		 * are used to specify the lower left and upper right 
+		 * corners of the rectangle. They are by default @c NULL .
+		 * @param restriction is used to specify whether a
+		 * restriction to a rectangular region
+		 * should be applied. It is by default @c false .
 		 */
-		RiverSegment ConstructSegment() const;
+		RiverSegment ConstructSegment(double, double, double, double, bool, int) const;
 
 	private:
 		GDALDataset* data;

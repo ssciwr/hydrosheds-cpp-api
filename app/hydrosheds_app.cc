@@ -45,11 +45,16 @@ void HydroshedsDataSet::FeatureAttributes() const
     std::cout << std::endl;
 }
 
-RiverSegment HydroshedsDataSet::ConstructSegment() const
+RiverSegment HydroshedsDataSet::ConstructSegment(double x_min = 0.0, double y_min = 0.0, 
+    double x_max = 0.0, double y_max = 0.0, bool restriction = false, int seg_num = 0) const
 {
+    if(restriction == true)
+    {
+        layer->SetSpatialFilterRect(x_min, y_min, x_max, y_max);
+    }
     RiverSegment::layer = this->layer;
-    OGRFeature* f = this->layer->GetFeature(1);
-    RiverSegment s(f, 0);
+    OGRFeature* f = this->layer->GetNextFeature();
+    RiverSegment s(f, seg_num);
     return s;
 }
 
@@ -265,41 +270,6 @@ int main(int argc, char** argv)
         std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
         std::cout << "Current subsegment: " << R1.get_segment() << std::endl; 
     }
-    // std::cout << "Current subsegment: " << R.get_segment() << std::endl;
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R1 = R.getDownstreamSegment();
-    // std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R1.get_segment() << std::endl;
-
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R2 = R1.getDownstreamSegment();
-    // std::cout << "Feature index: " << R2.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R2.get_segment() << std::endl;
-
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R3 = R2.getDownstreamSegment();
-    // std::cout << "Feature index: " << R3.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R3.get_segment() << std::endl;
-
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R4 = R3.getDownstreamSegment();
-    // std::cout << "Feature index: " << R4.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R4.get_segment() << std::endl;
-
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R5 = R4.getDownstreamSegment();
-    // std::cout << "Feature index: " << R5.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R5.get_segment() << std::endl;
-
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R6 = R5.getDownstreamSegment();
-    // std::cout << "Feature index: " << R6.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R6.get_segment() << std::endl;
-
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R7 = R6.getDownstreamSegment();
-    // std::cout << "Feature index: " << R7.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R7.get_segment() << std::endl;
- 
+    
     return 0;
 }
