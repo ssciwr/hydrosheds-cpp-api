@@ -89,8 +89,8 @@ namespace hydrosheds {
         friend class FullDatasetRiverSegmentIterator;
         friend class DownstreamIterator;
         friend class DownstreamIteratorHelper;
-        RiverSegment(OGRLayer*, OGRFeature*);
-        OGRLayer* layer;
+        RiverSegment(OGRLayer*, OGRFeature*); // RiverSegment(OGRFeautre, int)
+        OGRLayer* layer; // static
         OGRFeature* feature;
     };
 
@@ -182,14 +182,14 @@ namespace hydrosheds {
          *
          * @param riverSegment
          */
-        DownstreamIterator(RiverSegment riverSegment): segment(riverSegment), isEndSegment(!riverSegment.hasDownstreamSegment()){};
+        DownstreamIterator(RiverSegment riverSegment): segment(riverSegment), isEndSegment(!riverSegment.hasDownstreamSegment()){}; // adjust to the constructor of anirudhs implementation
 
         /** @brief This constructor is needed only for initializing the end() method of the DownstreamIteratorHelper struct. It initializes
          *          the given RiverSegment with the OGRLayer of the dataset and initializes the OGRFeature as NULL.
          *
          * @param dataset
          */
-        DownstreamIterator(HydroshedsDataSet dataset): segment(dataset.layer, NULL){};
+        DownstreamIterator(HydroshedsDataSet dataset): segment(dataset.layer, NULL){}; // Dito
 
 
         /** @brief This method increments the given DownstreamIterator in a prefix style

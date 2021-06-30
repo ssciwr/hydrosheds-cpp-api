@@ -119,7 +119,7 @@ namespace hydrosheds {
 
     // FullDataSetRiverSegmentIterator
     FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(OGRFeature* ogrFeature, OGRLayer* ogrLayer)
-            : segment(ogrLayer, ogrFeature)
+            : segment(ogrLayer, ogrFeature) // segment(ogrFeature, int)
     {
         // intializing the values
         feature = ogrFeature;
@@ -183,7 +183,7 @@ namespace hydrosheds {
     {
         hydrosheds::Coordinate closest = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
         // iterate over all from the FullDatasetRiverSegmentIterator and find RiverSegment closest to x
-        RiverSegment segment(this->layer, this->layer->GetFeature(0));
+        RiverSegment segment(this->layer, this->layer->GetFeature(1)); /// construct a riversegment with int =0
         for(auto i : (*this))
         {
             auto start = i.getStartingPoint();
@@ -220,6 +220,7 @@ namespace hydrosheds {
         return (*this);
     }
 
+
     DownstreamIterator DownstreamIterator::operator++(int)
     {
         // getting the next DownstreamSegment and return this in a postfix fashion
@@ -228,6 +229,8 @@ namespace hydrosheds {
         this->segment = next;
         return result;
     }
+
+
     bool DownstreamIterator::operator==(const DownstreamIterator& a)
     {
         // comparison operator checking for pointer equality
