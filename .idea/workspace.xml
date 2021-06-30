@@ -38,7 +38,6 @@
   <component name="ChangeListManager">
     <list default="true" id="34efcf83-79ec-4c41-ae90-bec9fc72a338" name="Default Changelist" comment="Task of 21.5.2021&#10;&#10;implemented methods for RiverSegment &#10;and tested them">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/hydrosheds_app.cc" beforeDir="false" afterPath="$PROJECT_DIR$/app/hydrosheds_app.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/hydrosheds/hydrosheds.hh" beforeDir="false" afterPath="$PROJECT_DIR$/include/hydrosheds/hydrosheds.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hydrosheds.cc" beforeDir="false" afterPath="$PROJECT_DIR$/src/hydrosheds.cc" afterDir="false" />
     </list>
@@ -144,6 +143,7 @@
       <workItem from="1624898797603" duration="1852000" />
       <workItem from="1624964940821" duration="9365000" />
       <workItem from="1624993424348" duration="2316000" />
+      <workItem from="1625043666243" duration="343000" />
     </task>
     <task id="LOCAL-00001" summary="Tasks of week 30.4-7.5 &#10;&#10;building and running hydrosheds_app.cc">
       <created>1620164287004</created>
