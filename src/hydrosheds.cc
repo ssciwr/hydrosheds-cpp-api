@@ -12,7 +12,7 @@ using namespace hydrosheds;
 OGRLayer* RiverSegment::layer;
 
 /* -- CLASS HYDROSHEDS DATA SET -- */
-HydroshedsDataSet::HydroshedsDataSet(const std::string& path)
+HydroshedsDataSet::HydroshedsDataSet(const std::string& path, int l_num = 0)
 {
     GDALAllRegister();
     // GDALDataset* data;
