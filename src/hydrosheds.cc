@@ -1,4 +1,4 @@
-#include "../include/hydrosheds/hydrosheds.hh"
+#include "hydrosheds/hydrosheds.hh"
 
 #include "ogrsf_frmts.h"
 
@@ -203,14 +203,12 @@ OGRFeature* RiverSegment::search_feature(unsigned int NEXT_DOWN_ID) const
 
 RiverSegment RiverSegment::getDownstreamSegment()
 {
-    // What happens if feature is endorheic should go back to main river.
     if(this->hasDownstreamSegment() == false)
     {
         std::cerr << "No downstream segments for current segment." << std::endl;
         exit(1);
     }
 
-    // Need better memory management.
     OGRFeature* f;
     int new_segment_id;
     if(this->segment < this->get_number_of_subsegments() - 1)
