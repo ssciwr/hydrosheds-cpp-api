@@ -1,4 +1,4 @@
-#include "/hydrosheds/hydrosheds.hh"
+#include "hydrosheds/hydrosheds.hh"
 
 #include "ogrsf_frmts.h"
 
