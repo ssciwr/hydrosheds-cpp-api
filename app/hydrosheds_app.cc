@@ -201,7 +201,6 @@ OGRFeature* RiverSegment::search_feature(unsigned int NEXT_DOWN_ID) const
 
 RiverSegment RiverSegment::getDownstreamSegment()
 {
-    // What happens if feature is endorheic should go back to main river.
     if(this->hasDownstreamSegment() == false)
     {
         std::cerr << "No downstream segments for current segment." << std::endl;
