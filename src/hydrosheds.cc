@@ -15,14 +15,19 @@ OGRLayer* RiverSegment::layer;
 HydroshedsDataSet::HydroshedsDataSet(const std::string& path, int l_num = 0)
 {
     GDALAllRegister();
-    // GDALDataset* data;
     data = (GDALDataset*) GDALOpenEx(path.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
-    if(data == NULL)
+	 if(data == NULL)
     {
-        std::cerr << "Opening geodatabase failed." << std::endl;
+        std::cerr << "Opening geodatabase failed. Check path or file format." << std::endl;
         exit(1);
     }
-    layer = data->GetLayer(0);
+    
+    if(data->GetLayerCount() > 1)
+    {
+        std::cout << "Dataset contains more than one layer." << "\n";
+        std::cout << "Initialising by default to the first layer." << std::endl;
+    }
+    layer = data->GetLayer(l_num);
 }
 
 std::array <unsigned long long, 2> HydroshedsDataSet::shape() const
