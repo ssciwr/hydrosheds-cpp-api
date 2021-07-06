@@ -12,5 +12,3 @@ TEST_CASE("test shape", "[dataset]")
 	REQUIRE(D.shape()[0] > 0);
 	REQUIRE(D.shape()[1] > 0);
 }
-
-TEST_CASE

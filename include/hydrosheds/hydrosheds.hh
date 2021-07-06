@@ -66,7 +66,7 @@ namespace hydrosheds
 		 * should be applied. It is by default @c false .
 		 */
 		RiverSegment ConstructSegment(double x_min = 0.0, double y_min = 0.0, 
-    double x_max = 0.0, double y_max = 0.0, bool restriction = false, int seg_num = 0) const;
+    	double x_max = 0.0, double y_max = 0.0, bool restriction = false, int seg_num = 0) const;
 
 	private:
 		GDALDataset* data;
