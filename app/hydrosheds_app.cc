@@ -1,6 +1,7 @@
 #include "hydrosheds/hydrosheds.hh"
 #include <iostream>
 
+using namespace hydrosheds;
 
 int main(int argc, char** argv)
 {
@@ -11,19 +12,19 @@ int main(int argc, char** argv)
     }
 
     // Initialise the data set.
-    HydroshedsDataSet D(argv[1]);
+    HydroshedsDataSet D(argv[1], 0);
 
     // Initialise a river segment object.
     // RiverSegment R = D.ConstructSegment(-100.0, -50.0, 100.0, 50.0);
     RiverSegment R = D.ConstructSegment();
     // Initial testing
-    std::cout << "SUMMARY" << std::endl;
     std::cout << "Shape: " << "(" << D.shape()[0] 
                 << ", "  << D.shape()[1] << ")" << std::endl;
-    std::cout << "LENGTHS ------" << std::endl;
-   
+                
+    std::cout << "SUMMARY" << std::endl;
     R.summary(true);
-   
+    
+    std::cout << "LENGTHS ------" << std::endl;
     std::cout << R.getLength() << std::endl;
     std::cout << R.getTotalLength() << std::endl;
     std::cout << R.getGeologicalLength() << std::endl;

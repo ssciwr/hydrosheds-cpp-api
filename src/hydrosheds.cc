@@ -16,12 +16,13 @@ HydroshedsDataSet::HydroshedsDataSet(const std::string& path, int l_num = 0)
 {
     GDALAllRegister();
     data = (GDALDataset*) GDALOpenEx(path.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
-	 if(data == NULL)
+    if(data == NULL)
     {
         std::cerr << "Opening geodatabase failed. Check path or file format." << std::endl;
         exit(1);
     }
-    
+    std::cout << "Successfully initalised data set." << std::endl;
+
     if(data->GetLayerCount() > 1)
     {
         std::cout << "Dataset contains more than one layer." << "\n";
@@ -50,8 +51,8 @@ void HydroshedsDataSet::FeatureAttributes() const
     std::cout << std::endl;
 }
 
-RiverSegment HydroshedsDataSet::ConstructSegment(double x_min = 0.0, double y_min = 0.0, 
-    double x_max = 0.0, double y_max = 0.0, bool restriction = false, int seg_num = 0) const
+RiverSegment HydroshedsDataSet::ConstructSegment(double x_min, double y_min, 
+    double x_max, double y_max, bool restriction, int seg_num) const
 {
     layer->SetSpatialFilter(NULL);
     layer->ResetReading();
@@ -105,7 +106,7 @@ RiverSegment::RiverSegment(const RiverSegment& R)
     }
 }
 
-auto RiverSegment::summary(bool verbose = false) const
+std::tuple <const char*, int, double>  RiverSegment::summary(bool verbose = false) const
 {
     std::tuple <const char*, int, double> inf(this->feature->GetGeometryRef()->getGeometryName(), this->get_number_of_subsegments(), feature->GetFieldAsDouble("LENGTH_KM"));
     if(verbose == true)
@@ -231,40 +232,40 @@ RiverSegment RiverSegment::getDownstreamSegment()
     return s;
 }
 
-int main(int argc, char** argv)
-{
-    if (argc != 2) 
-    {
-        std::cerr << "Usage: ./hydrosheds_app <path-to-gdb-directory>" << std::endl;
-        return 1;
-    }
+// int main(int argc, char** argv)
+// {
+//     if (argc != 2) 
+//     {
+//         std::cerr << "Usage: ./hydrosheds_app <path-to-gdb-directory>" << std::endl;
+//         return 1;
+//     }
 
-    // Initialise the data set.
-    HydroshedsDataSet D(argv[1]);
+//     // Initialise the data set.
+//     HydroshedsDataSet D(argv[1]);
 
-    // Initialise a river segment object.
-    // RiverSegment R = D.ConstructSegment(-100.0, -50.0, 100.0, 50.0);
-    RiverSegment R = D.ConstructSegment();
-    // Initial testing
-    std::cout << "SUMMARY" << std::endl;
-     std::cout << "Shape: " << "(" << D.shape()[0] 
-                << ", "  << D.shape()[1] << ")" << std::endl;
-    std::cout << "LENGTHS ------" << std::endl;
+//     // Initialise a river segment object.
+//     // RiverSegment R = D.ConstructSegment(-100.0, -50.0, 100.0, 50.0);
+//     RiverSegment R = D.ConstructSegment();
+//     // Initial testing
+//     std::cout << "SUMMARY" << std::endl;
+//      std::cout << "Shape: " << "(" << D.shape()[0] 
+//                 << ", "  << D.shape()[1] << ")" << std::endl;
+//     std::cout << "LENGTHS ------" << std::endl;
    
-    R.summary(true);
+//     R.summary(true);
    
-    std::cout << R.getLength() << std::endl;
-    std::cout << R.getTotalLength() << std::endl;
-    std::cout << R.getGeologicalLength() << std::endl;
+//     std::cout << R.getLength() << std::endl;
+//     std::cout << R.getTotalLength() << std::endl;
+//     std::cout << R.getGeologicalLength() << std::endl;
     
-    std::cout << "DOWNSTREAM ITERATION ------" << std::endl;
-    RiverSegment R1 = R;
-    for(int i = 1; i < 100; i++)
-    {
-        std::cout << "Getting downstream segments..." << std::endl;
-        R1 = R1.getDownstreamSegment();
-        std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
-        std::cout << "Current subsegment: " << R1.get_segment() << std::endl; 
-    }
-    return 0;
-}
+//     std::cout << "DOWNSTREAM ITERATION ------" << std::endl;
+//     RiverSegment R1 = R;
+//     for(int i = 1; i < 100; i++)
+//     {
+//         std::cout << "Getting downstream segments..." << std::endl;
+//         R1 = R1.getDownstreamSegment();
+//         std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
+//         std::cout << "Current subsegment: " << R1.get_segment() << std::endl; 
+//     }
+//     return 0;
+// }

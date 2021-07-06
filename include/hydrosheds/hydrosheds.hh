@@ -4,6 +4,7 @@
 
 #include <array>
 #include <string>
+#include <tuple>
 #include <vector>
 
 /** @brief hydrosheds primary namespace
@@ -64,7 +65,8 @@ namespace hydrosheds
 		 * restriction to a rectangular region
 		 * should be applied. It is by default @c false .
 		 */
-		RiverSegment ConstructSegment(double, double, double, double, bool, int) const;
+		RiverSegment ConstructSegment(double x_min = 0.0, double y_min = 0.0, 
+    double x_max = 0.0, double y_max = 0.0, bool restriction = false, int seg_num = 0) const;
 
 	private:
 		GDALDataset* data;
@@ -95,7 +97,7 @@ namespace hydrosheds
 		 * description. The function returns a tuple
 		 * @c (geometry_type, @c number_of_subsegments, @c feature_length) .
 		 */
-		auto summary(bool) const;
+		std::tuple <const char*, int, double> summary(bool) const;
 
 		/** @brief Length of current subsegment
 		 * Returns the calculated length of the subsegment (who's index, starting 0, 
@@ -180,8 +182,8 @@ namespace hydrosheds
 		/** @brief Search feature
 		 * Search the feature with the HYRIV_ID
 		 * @param NEXT_DOWN_ID . 
-		 * Uses an SQL Query to search
-		 * feature with a particular @c HYRIV_ID .
+		 * Uses an SQL Query to search a
+		 * feature with a particular @c HYRIV_ID
 		 * by setting the search criterion of 
 		 * @c OGRLayer::GetNextFeature() .
 		 */
