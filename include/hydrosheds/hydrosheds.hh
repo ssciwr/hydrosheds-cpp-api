@@ -85,7 +85,7 @@ namespace hydrosheds
 		 * description. The function returns a tuple
 		 * @c (geometry_type, @c number_of_subsegments, @c feature_length) .
 		 */
-		auto summary(bool) const;
+		std::tuple <const char*, int, double> summary(bool) const;
 
 		/** @brief Length of current subsegment
 		 * Returns the calculated length of the subsegment (who's index, starting 0, 
