@@ -40,7 +40,7 @@ std::array <unsigned long long, 2> HydroshedsDataSet::shape() const
     return shape;
 }
 
-void HydroshedsDataSet::FeatureAttributes() const
+int HydroshedsDataSet::FeatureAttributes() const
 {
     OGRFeature* feature;
     feature = layer->GetNextFeature();
@@ -49,6 +49,7 @@ void HydroshedsDataSet::FeatureAttributes() const
         std::cout << feature->GetDefnRef()->GetFieldDefn(i)->GetNameRef() << " ";
     }
     std::cout << std::endl;
+    return feature->GetFieldCount();
 }
 
 RiverSegment HydroshedsDataSet::ConstructSegment(double x_min, double y_min, 
@@ -63,9 +64,11 @@ RiverSegment HydroshedsDataSet::ConstructSegment(double x_min, double y_min,
             std::cerr << "Coordinates should be positive. " << std::endl;
             exit(1);
         }
+
         layer->SetSpatialFilterRect(x_min, y_min, x_max, y_max);
         std::cout << "Added spatial filter to dataset. To remove, call HydroshedsDataSet::ConstructSegment()." << std::endl;
     }
+
     RiverSegment::layer = this->layer;
     OGRFeature* f = this->layer->GetNextFeature();
     RiverSegment s(f, seg_num);
@@ -78,13 +81,13 @@ RiverSegment::RiverSegment(OGRFeature* f, int seg_num)
 {
     OGRGeometry* geometry = f->GetGeometryRef();
     OGRMultiLineString* GLine = geometry->toMultiLineString();
-    this->segment_points.clear();
+    segment_points.clear();
     for(auto multi_line_string: *(GLine))
     {
         for(auto point: *(multi_line_string))
         {
             Coordinate p = {point.getX(), point.getY()};
-            this->segment_points.push_back(p);
+            segment_points.push_back(p);
         }
     }
 }
@@ -106,7 +109,7 @@ RiverSegment::RiverSegment(const RiverSegment& R)
     }
 }
 
-std::tuple <const char*, int, double>  RiverSegment::summary(bool verbose = false) const
+std::tuple <const char*, int, double> RiverSegment::summary(bool verbose = false) const
 {
     std::tuple <const char*, int, double> inf(this->feature->GetGeometryRef()->getGeometryName(), this->get_number_of_subsegments(), feature->GetFieldAsDouble("LENGTH_KM"));
     if(verbose == true)
@@ -217,6 +220,7 @@ RiverSegment RiverSegment::getDownstreamSegment()
 
     OGRFeature* f;
     int new_segment_id;
+
     if(this->segment < this->get_number_of_subsegments() - 1)
     {
         f = feature;
@@ -227,45 +231,7 @@ RiverSegment RiverSegment::getDownstreamSegment()
         f = this->search_feature(feature->GetFieldAsInteger("NEXT_DOWN"));
         new_segment_id = 0;
     }
-    // new_segment_id = this->segment + 1;
+    
     RiverSegment s(f, new_segment_id);
     return s;
 }
-
-// int main(int argc, char** argv)
-// {
-//     if (argc != 2) 
-//     {
-//         std::cerr << "Usage: ./hydrosheds_app <path-to-gdb-directory>" << std::endl;
-//         return 1;
-//     }
-
-//     // Initialise the data set.
-//     HydroshedsDataSet D(argv[1]);
-
-//     // Initialise a river segment object.
-//     // RiverSegment R = D.ConstructSegment(-100.0, -50.0, 100.0, 50.0);
-//     RiverSegment R = D.ConstructSegment();
-//     // Initial testing
-//     std::cout << "SUMMARY" << std::endl;
-//      std::cout << "Shape: " << "(" << D.shape()[0] 
-//                 << ", "  << D.shape()[1] << ")" << std::endl;
-//     std::cout << "LENGTHS ------" << std::endl;
-   
-//     R.summary(true);
-   
-//     std::cout << R.getLength() << std::endl;
-//     std::cout << R.getTotalLength() << std::endl;
-//     std::cout << R.getGeologicalLength() << std::endl;
-    
-//     std::cout << "DOWNSTREAM ITERATION ------" << std::endl;
-//     RiverSegment R1 = R;
-//     for(int i = 1; i < 100; i++)
-//     {
-//         std::cout << "Getting downstream segments..." << std::endl;
-//         R1 = R1.getDownstreamSegment();
-//         std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
-//         std::cout << "Current subsegment: " << R1.get_segment() << std::endl; 
-//     }
-//     return 0;
-// }

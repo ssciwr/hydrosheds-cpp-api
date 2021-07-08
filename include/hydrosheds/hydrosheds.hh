@@ -28,7 +28,7 @@ namespace hydrosheds
 	{
 	public:
 		/** @brief main constructor
-		 * Defauult constructor.
+		 * Default constructor.
 		 */ 
 		HydroshedsDataSet() = default;
 
@@ -41,14 +41,16 @@ namespace hydrosheds
 		HydroshedsDataSet(const std::string&, int l_num);
 
 		/** @brief Get dataset dimensions
-		 * Returns the size of the dataset as an array (#features, #column_fields).
+		 * Returns the size of the dataset as an 
+		 * array (#features, #column_fields).
 		 */  
 		std::array <unsigned long long, 2> shape() const;
 
 		/** @brief Field names in dataset
-		 * Returns the column names in the dataset.
+		 * Prints the column names in the dataset.
+		 * @returns number of columns in the dataset.
 		 */  
-		void FeatureAttributes() const;
+		int FeatureAttributes() const;
 
 		/** @brief Access to the subsegments of each feature
 		 * Constructs an instance of the subsegment interface.
@@ -99,24 +101,26 @@ namespace hydrosheds
 		 */
 		std::tuple <const char*, int, double> summary(bool) const;
 
-		/** @brief Length of current subsegment
-		 * Returns the calculated length of the subsegment (who's index, starting 0, 
-		 * is stored in @c segment ) in Km. The length is calculated
-		 * using the start and end points of segment @c segment. 
+		/** @brief Length of current subsegment.
+		 * @returns the calculated length of the subsegment (who's index, starting 0, 
+		 * is stored in @c segment ) in Km. 
+		 * The length is calculated using the start and 
+		 * end points of segment @c segment. 
 		 */
 		double getLength() const;
 
-		/** @brief Sum length of all subsegments
-		 * Returns the sum of the calculated length of all subsegments (who's index, starting 0, 
+		/** @brief Sum length of all subsegments.
+		 * @returns the sum of the calculated length of all subsegments (who's index, starting 0, 
 		 * is stored in @c segment ) in Km. The length is calculated
-		 * using the start and end points of segment @c segment. 
+		 * using the start and end points of segment @c segment.
 		 */
 		double getTotalLength() const;
 
-		/** @brief Geological Length of current subsegment
-		 * Returns the length of the subsegment (who's index, starting 0, 
+		/** @brief Geological Length of current subsegment.
+		 * @returns the length of the subsegment (who's index, starting 0, 
 		 * is stored in @c segment ) as a fraction of the
 		 * geological length of the feature in Km. 
+		 * @returns double.
 		 */
 		double getGeologicalLength() const; // distribute by ratio length / total_length * geo_length 
 
