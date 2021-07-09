@@ -15,6 +15,7 @@ set(BUILD_DOCS ON CACHE BOOL "Enable building of documentation")
 
 # Look for upstream dependencies
 find_package(GDAL REQUIRED)
+find_package(TIFF REQUIRED)
 
 # compile the library
 add_subdirectory(src)
