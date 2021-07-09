@@ -28,7 +28,7 @@ jobs:
     - name: Install OS dependencies
       run: |
         sudo apt update
-        sudo apt install libgdal-dev
+        sudo apt install libgdal-dev libtiff-dev
 
     - name: make build directory
       run: cmake -E make_directory ${{runner.workspace}}/build

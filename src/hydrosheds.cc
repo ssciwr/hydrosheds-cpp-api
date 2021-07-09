@@ -1,6 +1,7 @@
 #include "hydrosheds/hydrosheds.hh"
 
 #include "ogrsf_frmts.h"
+<<<<<<< HEAD
 
 #include <iostream>
 #include <cmath>
@@ -236,3 +237,103 @@ RiverSegment RiverSegment::getDownstreamSegment()
     RiverSegment s(f, new_segment_id);
     return s;
 }
+=======
+
+#include<iostream>
+#include<string>
+
+
+namespace hydrosheds {
+
+  HydroshedsDataSet::HydroshedsDataSet(const std::string& path)
+  {
+    GDALAllRegister();
+    auto data = (GDALDataset*) GDALOpenEx(path.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
+
+    if(data == NULL)
+    {
+      std::cerr << "Opening geodatabase failed." << std::endl;
+      throw std::exception{};
+    }
+
+    layer = data->GetLayer(0);
+  }
+
+  RiverSegment HydroshedsDataSet::getSegment() const
+  {
+    // This is extracting just some random feature for debugging purposes.
+    // When we move on to iterators, this will vanish.
+    return RiverSegment(layer, layer->GetFeature(52));
+  }
+
+  RiverSegment::RiverSegment(OGRLayer* layer, OGRFeature* feature)
+    : layer(layer)
+    , feature(feature)
+  {}
+
+  RiverSegment RiverSegment::getDownstreamSegment() const
+  {
+    // The modulo operation here is weird, but necessary if the GetFeature(index)
+    // method is supposed to be used: It removes the continent encoding prefix
+    auto next_index = feature->GetFieldAsInteger("NEXT_DOWN") % 10000000;
+    return RiverSegment(layer, layer->GetFeature(next_index));
+  }
+
+  double RiverSegment::getDischarge() const
+  {
+    return feature->GetFieldAsDouble("DIS_AV_CMS");
+  }
+
+  OGRLineString* getLineString(OGRFeature* feature)
+  {
+    OGRGeometry* geo = feature->GetGeometryRef();
+    OGRMultiLineString* multiline = geo->toMultiLineString();
+    OGRLineString* line = *(multiline->begin());
+    return line;
+  }
+
+  Coordinate RiverSegment::getStartingPoint() const
+  {
+    // Extract the curve start point
+    OGRPoint start;
+    getLineString(feature)->StartPoint(&start);
+
+    return Coordinate{start.getX(), start.getY()};
+  }
+
+  Coordinate RiverSegment::getEndPoint() const
+  {
+    // Extract the curve start point
+    OGRPoint end;
+    getLineString(feature)->EndPoint(&end);
+
+    return Coordinate{end.getX(), end.getY()};
+  }
+
+  bool RiverSegment::hasDownstreamSegment() const
+  {
+    // If the NEXT_DOWN field is 0, there is no downstream segment
+    if (feature->GetFieldAsInteger("NEXT_DOWN") == 0)
+      return false;
+
+    // If the ENDORHEIC field is 1, there is also no downstream segment
+    // TODO: This is my limited understanding - might need to rethink
+    if (feature->GetFieldAsInteger("ENDORHEIC") == 1)
+      return false;
+
+    // In all other cases, there is a downstream segment;
+    return true;
+  }
+
+  double RiverSegment::getLength() const
+  {
+    return getLineString(feature)->get_Length();
+  }
+
+  double RiverSegment::getGeologicalLength() const
+  {
+    return feature->GetFieldAsDouble("LENGTH_KM");
+  }
+
+} // namespace hydrosheds
+>>>>>>> 78f48555911318d034fa9ae8080ee3a6b3c7b2d2

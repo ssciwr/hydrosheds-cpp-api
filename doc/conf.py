@@ -71,5 +71,6 @@ if read_the_docs_build:
     builddir = os.path.join(cwd, "build-cmake")
     subprocess.check_call("cmake -DBUILD_DOCS=ON -DBUILD_TESTING=OFF  ../..".split(), cwd=builddir)
     subprocess.check_call("cmake --build . --target doxygen".split(), cwd=builddir)
+    breathe_projects["hydrosheds-cpp-api"] = os.path.join(builddir, "doc", "xml")
 else:
-    breathe_projects["hydrosheds-cpp-api"] = os.path.abspath("xml")
+    breathe_projects["hydrosheds-cpp-api"] = os.path.join(os.environ["HYDROSHEDS_BUILD_DIR"], "doc", "xml")
