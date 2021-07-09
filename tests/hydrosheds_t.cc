@@ -1,7 +1,6 @@
 #include "hydrosheds/hydrosheds.hh"
 #include "catch2/catch.hpp"
 
-
 using namespace hydrosheds;
 
 std::string path = "/Users/anirudh/Documents/Internship-Hydrosheds/HydroRIVERS_v10_as.gdb";
@@ -39,10 +38,7 @@ TEST_CASE("River segment subsegments.", "[RiverSegment]")
 		{
 			CAPTURE(R.get_number_of_subsegments());
 			REQUIRE(R1.get_number_of_subsegments() > 0);
-		}
-
-       
-       
+		}  
     }
 }
 
