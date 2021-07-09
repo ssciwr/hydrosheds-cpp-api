@@ -41,8 +41,6 @@ TEST_CASE("River segment subsegments.", "[RiverSegment]")
 			REQUIRE(R1.get_number_of_subsegments() > 0);
 		}
 
-       
-       
     }
 }
 
