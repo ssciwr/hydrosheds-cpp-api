@@ -201,9 +201,5 @@ namespace hydrosheds
 		friend class HydroshedsDataSet;
 	};
 
-<<<<<<< HEAD
 } 
 
-=======
-} 
->>>>>>> 34d07e5aaefc1431f538e9174cc7ef88d4b126fa

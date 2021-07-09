@@ -22,13 +22,16 @@ TEST_CASE("Field count", "[dataset]")
 
 TEST_CASE("River segment subsegments.", "[RiverSegment]")
 {
-	// REQUIRE(std::is_same <decltype(R.getLength()), decltype(num)>::value == true);
+	
     RiverSegment R1 = R;
     for(int i = 1; i < 100; i++)
     {
 		R1 = R1.getDownstreamSegment();
 		SECTION("Different lengths.")
 		{
+			REQUIRE(std::is_same <decltype(R.getLength()), double>::value == true);
+			REQUIRE(std::is_same <decltype(R.getTotalLength()), double>::value == true);
+			REQUIRE(std::is_same <decltype(R.getGeologicalLength()), double>::value == true);
 			REQUIRE(R.getLength() >= 0.0);
 			REQUIRE(R.getTotalLength() >= 0.0);
 			REQUIRE(R.getGeologicalLength() >= 0.0);
