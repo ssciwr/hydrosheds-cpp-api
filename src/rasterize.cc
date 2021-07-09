@@ -1,6 +1,6 @@
 #include "hydrosheds/rasterize.hh"
 
-#include<tiffio.h>
+#include <tiffio.h>
 
 namespace hydrosheds {
 
