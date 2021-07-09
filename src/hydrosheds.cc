@@ -14,6 +14,7 @@ OGRLayer* RiverSegment::layer;
 /* -- CLASS HYDROSHEDS DATA SET -- */
 HydroshedsDataSet::HydroshedsDataSet(const std::string& path, int l_num = 0)
 {
+    // Try with .shp
     GDALAllRegister();
     data = (GDALDataset*) GDALOpenEx(path.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
     if(data == NULL)

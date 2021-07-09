@@ -1,7 +1,6 @@
 #include "hydrosheds/hydrosheds.hh"
 #include "catch2/catch.hpp"
 
-
 using namespace hydrosheds;
 
 std::string path = "/Users/anirudh/Documents/Internship-Hydrosheds/HydroRIVERS_v10_as.gdb";
@@ -23,13 +22,16 @@ TEST_CASE("Field count", "[dataset]")
 
 TEST_CASE("River segment subsegments.", "[RiverSegment]")
 {
-	// REQUIRE(std::is_same <decltype(R.getLength()), decltype(num)> == 1);
+	
     RiverSegment R1 = R;
     for(int i = 1; i < 100; i++)
     {
 		R1 = R1.getDownstreamSegment();
 		SECTION("Different lengths.")
 		{
+			REQUIRE(std::is_same <decltype(R.getLength()), double>::value == true);
+			REQUIRE(std::is_same <decltype(R.getTotalLength()), double>::value == true);
+			REQUIRE(std::is_same <decltype(R.getGeologicalLength()), double>::value == true);
 			REQUIRE(R.getLength() >= 0.0);
 			REQUIRE(R.getTotalLength() >= 0.0);
 			REQUIRE(R.getGeologicalLength() >= 0.0);
@@ -39,8 +41,7 @@ TEST_CASE("River segment subsegments.", "[RiverSegment]")
 		{
 			CAPTURE(R.get_number_of_subsegments());
 			REQUIRE(R1.get_number_of_subsegments() > 0);
-		}
-
+		}  
     }
 }
 
