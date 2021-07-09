@@ -23,7 +23,7 @@ TEST_CASE("Field count", "[dataset]")
 
 TEST_CASE("River segment subsegments.", "[RiverSegment]")
 {
-	// REQUIRE(std::is_same <decltype(R.getLength()), decltype(num)> == 1);
+	// REQUIRE(std::is_same <decltype(R.getLength()), decltype(num)>::value == true);
     RiverSegment R1 = R;
     for(int i = 1; i < 100; i++)
     {
