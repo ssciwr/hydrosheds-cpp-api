@@ -27,21 +27,36 @@ TEST_CASE("River segment subsegments.", "[RiverSegment]")
     for(int i = 1; i < 100; i++)
     {
 		R1 = R1.getDownstreamSegment();
-		SECTION("Different lengths.")
+		
+		SECTION("Different lengths type.")
 		{
-			REQUIRE(std::is_same <decltype(R.getLength()), double>::value == true);
-			REQUIRE(std::is_same <decltype(R.getTotalLength()), double>::value == true);
-			REQUIRE(std::is_same <decltype(R.getGeologicalLength()), double>::value == true);
-			REQUIRE(R.getLength() >= 0.0);
-			REQUIRE(R.getTotalLength() >= 0.0);
-			REQUIRE(R.getGeologicalLength() >= 0.0);
+			REQUIRE(std::is_same <decltype(R1.getLength()), double>::value == true);
+			REQUIRE(std::is_same <decltype(R1.getTotalLength()), double>::value == true);
+			REQUIRE(std::is_same <decltype(R1.getGeologicalLength()), double>::value == true);
+			
 		}
 		
-		SECTION("Checking number of subsegments")
+		SECTION("Different lengths' value.")
 		{
-			CAPTURE(R.get_number_of_subsegments());
+			REQUIRE(R1.getLength() >= 0.0);
+			REQUIRE(R1.getTotalLength() >= 0.0);
+			REQUIRE(R1.getGeologicalLength() >= 0.0);
+		}
+		
+		SECTION("Check number of subsegments.")
+		{
+			// CAPTURE(R.get_number_of_subsegments());
 			REQUIRE(R1.get_number_of_subsegments() > 0);
-		}  
+		}
+
+		SECTION("Discharge.")
+		{
+			REQUIRE(std::is_same <decltype(R1.getDischarge()), double>::value == true);
+			REQUIRE(R1.getDischarge() >= 0.0);
+		}
+
+		SECTION("Starting point of subsegment.")
+		{}  
     }
 }
 

@@ -6,6 +6,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <stdexcept>
 
 /** @brief hydrosheds primary namespace
  *
@@ -56,19 +57,16 @@ namespace hydrosheds
 		 * Constructs an instance of the subsegment interface.
 		 * By defeault the contructor holds the passes the first subsegment  
 		 * of the first feature in the dataset. 
-		 * @param seg_num can be used to specify which subsegment
-		 * of the feature will be constructed. This may 
-		 * throw an error as @c seg_num may exceed the number
-		 * of subsegments in the feature. 
+		 * @param feature_index can be used to specify which feature (according  * to the FID (defined in the GDAL documentation)) will be constructed. 
 		 * ( @param x_min, @param y_min) and ( @param x_max, @param y_max)
 		 * are used to specify the lower left and upper right 
 		 * corners of the rectangle. They are by default @c NULL .
 		 * @param restriction is used to specify whether a
 		 * restriction to a rectangular region
-		 * should be applied. It is by default @c false .
+		 * should be applied. It is by default @c false.
 		 */
 		RiverSegment ConstructSegment(double x_min = 0.0, double y_min = 0.0, 
-    	double x_max = 0.0, double y_max = 0.0, bool restriction = false, int seg_num = 0) const;
+    	double x_max = 0.0, double y_max = 0.0, bool restriction = false, const int feature_index = 100) const;
 
 	private:
 		GDALDataset* data;
@@ -198,7 +196,7 @@ namespace hydrosheds
 		unsigned long int segment; 
 		std::vector <Coordinate> segment_points;  
 		
-		friend class HydroshedsDataSet;
+	friend class HydroshedsDataSet;
 	};
 
 } 
