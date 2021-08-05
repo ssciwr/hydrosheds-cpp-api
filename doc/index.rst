@@ -1,10 +1,4 @@
-HydroSheds C++ API
-==================
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
+.. mdinclude:: ../README.md
 
 Introduction
 ------------
@@ -15,4 +9,3 @@ The HydroSheds C++ API is interface that is built on top of the GDAL interface. 
 
 .. doxygenclass:: hydrosheds::RiverSegment
    :members:
-
