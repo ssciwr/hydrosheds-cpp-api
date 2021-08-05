@@ -138,6 +138,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+.idea
+.DS_Store
 .env
 .venv
 env/
@@ -169,3 +171,9 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+#Added
+cmake-build-debug/
+doc/html/
+doc/latex/
+
