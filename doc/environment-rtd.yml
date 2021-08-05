@@ -5,5 +5,3 @@ dependencies:
   - breathe
   - cmake
   - gdal
-  - sphinx 
-  - sphinx-rtd-theme
