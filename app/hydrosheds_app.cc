@@ -1,28 +1,48 @@
 #include "hydrosheds/hydrosheds.hh"
+#include <iostream>
 
-#include<iostream>
-
+using namespace hydrosheds;
 
 int main(int argc, char** argv)
 {
-  if (argc != 2) {
-    std::cerr << "Usage: ./hydrosheds_app <path-to-gdb-directory>" << std::endl;
-    return 1;
-  }
+    if(argc != 2) 
+    {
+        std::cerr << "Usage: ./hydrosheds_app <path-to-gdb-directory>" << std::endl;
+        exit(1);
+    }
 
-  // Instantiate the data set
-  hydrosheds::HydroshedsDataSet dataset(argv[1]);
+    // Initialise the data set.
+    HydroshedsDataSet D(argv[1], 0);
 
-  // Printing some example data
-  auto segment = dataset.getSegment();
-  auto start = segment.getDownstreamSegment().getStartingPoint();
-  auto end = segment.getDownstreamSegment().getEndPoint();
+    // Initialise a river segment object.
+    // RiverSegment R = D.ConstructSegment(-100.0, -50.0, 100.0, 50.0, false, 3);
+    RiverSegment R = D.ConstructSegment();
+    // Initial testing
+    std::cout << "Shape: " << "(" << D.shape()[0] 
+                << ", "  << D.shape()[1] << ")" << std::endl;
+                
+    std::cout << "SUMMARY" << std::endl;
+    R.summary(true);
+    
+    // std::cout << "LENGTHS ------" << std::endl;
+    // std::cout << R.getLength() << std::endl;
+    // std::cout << R.getTotalLength() << std::endl;
+    // std::cout << R.getGeologicalLength() << std::endl;
+    
+    std::cout << "DOWNSTREAM ITERATION ------" << std::endl;
+    RiverSegment R1 = R;
+    for(int i = 1; i < 10; i++)
+    {
+        std::cout << "Getting downstream segments..." << std::endl;
+        R1 = R1.getDownstreamSegment();
+        std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
+        std::cout << "Current subsegment: " << R1.get_segment() << std::endl; 
+    }
 
-  std::cout << "Start point: " << start[0] << " " << start[1] << std::endl;
-  std::cout << "End point: " << end[0] << " " << end[1] << std::endl;
-  std::cout << "Has downstream: " << (segment.hasDownstreamSegment() ? "yes" : "no") << std::endl;
-  std::cout << "Approximation Length: " << segment.getLength() << std::endl;
-  std::cout << "Geological Length: " << segment.getGeologicalLength() << std::endl;
+    // std::cout << "Getting downstream segments..." << std::endl;
+    // RiverSegment R1 = R.getDownstreamSegment();
+    // std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
+    // std::cout << "Current subsegment: " << R1.get_segment() << std::endl;
 
-  return 0;
+    return 0;
 }

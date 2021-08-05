@@ -12,7 +12,6 @@ doxygen_add_docs(doxygen
 
 add_custom_target(sphinx-doc
                   COMMAND
-                  ${CMAKE_COMMAND} -E env HYDROSHEDS_BUILD_DIR=${CMAKE_BINARY_DIR}
                   sphinx-build -b html
                   -Dbreathe_projects.hydrosheds="${CMAKE_CURRENT_BINARY_DIR}/xml"
                   -c ${CMAKE_CURRENT_SOURCE_DIR}
