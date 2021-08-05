@@ -32,6 +32,7 @@ release = '0.0.1'
 # ones.
 extensions = [
     "breathe",
+    "m2r2",
     "sphinx_rtd_theme",
 ]
 
