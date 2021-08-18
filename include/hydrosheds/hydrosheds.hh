@@ -7,6 +7,7 @@
 #include <tuple>
 #include <vector>
 #include <stdexcept>
+#include <map>
 
 /** @brief hydrosheds primary namespace
  *
@@ -201,3 +202,8 @@ namespace hydrosheds
 
 } 
 
+/* -- CONSIDERATIONS -- */
+// Fuzzy conversion from coordinates to ID.
+// Use a map as a data structure to keep track of vertices.
+// Inflow and Outflow defined in boundary vertices. 
+// 

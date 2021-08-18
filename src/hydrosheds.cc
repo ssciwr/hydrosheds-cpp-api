@@ -26,6 +26,11 @@ HydroshedsDataSet::HydroshedsDataSet(const std::string& path, int l_num = 0)
         std::cout << "Initialising to layer " << l_num << "." << std::endl;
     }
     layer = data->GetLayer(l_num);
+
+    // Test map for coordiantes
+    std::map <double, unsigned long int> coord_dict;
+    for(auto& feature: layer)
+    {}
 }
 
 std::array <unsigned long long, 2> HydroshedsDataSet::shape() const
