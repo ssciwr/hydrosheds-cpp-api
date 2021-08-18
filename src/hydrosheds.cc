@@ -9,40 +9,147 @@
 
 
 namespace hydrosheds {
+    /// from Anirudh : -----------------------------
+    // static layer declaration
+    OGRLayer* RiverSegment::layer;
 
-    HydroshedsDataSet::HydroshedsDataSet(const std::string& path)
+/* -- CLASS HYDROSHEDS DATA SET -- */
+    HydroshedsDataSet::HydroshedsDataSet(const std::string& path, int l_num = 0)
     {
         GDALAllRegister();
-        auto data = (GDALDataset*) GDALOpenEx(path.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
-
+        data = (GDALDataset*) GDALOpenEx(path.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
         if(data == NULL)
         {
-            std::cerr << "Opening geodatabase failed." << std::endl;
-            throw std::exception{};
+            std::cerr << "Opening geodatabase failed. Check path or file format." << std::endl;
+            exit(1);
         }
+        std::cout << "Successfully initalised data set." << std::endl;
 
-        layer = data->GetLayer(0);
-        this->count = layer->GetFeatureCount();
+        if(data->GetLayerCount() > 1)
+        {
+            std::cout << "Dataset contains more than one layer." << "\n";
+            std::cout << "Initialising by default to the first layer." << std::endl;
+        }
+        layer = data->GetLayer(l_num);
     }
 
-    RiverSegment HydroshedsDataSet::getSegment()
+    std::array <unsigned long long, 2> HydroshedsDataSet::shape() const
     {
-        // This is extracting just some random feature for debugging purposes.
-        // When we move on to iterators, this will vanish.
-        return RiverSegment(layer, layer->GetFeature(12));
+        OGRFeature* feature;
+        feature = layer->GetFeature(1);
+        // check this count may return nothing as feature maybe pointing to nullptr
+        std::array <unsigned long long, 2> shape = {(unsigned long long) layer->GetFeatureCount(), (unsigned long long) feature->GetFieldCount()};
+        return shape;
     }
 
-    RiverSegment::RiverSegment(OGRLayer* layer, OGRFeature* feature)
-            : layer(layer)
-            , feature(feature)
-    {}
-
-    RiverSegment RiverSegment::getDownstreamSegment() const
+    void HydroshedsDataSet::FeatureAttributes() const
     {
-        // The modulo operation here is weird, but necessary if the GetFeature(index)
-        // method is supposed to be used: It removes the continent encoding prefix
-        auto next_index = feature->GetFieldAsInteger("NEXT_DOWN") % 10000000;
-        return RiverSegment(layer, layer->GetFeature(next_index));
+        OGRFeature* feature;
+        feature = layer->GetNextFeature();
+        for(int i = 0; i < feature->GetFieldCount(); i++)
+        {
+            std::cout << feature->GetDefnRef()->GetFieldDefn(i)->GetNameRef() << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    RiverSegment HydroshedsDataSet::ConstructSegment(double x_min, double y_min,
+                                                     double x_max, double y_max, bool restriction, int seg_num) const
+    {
+        layer->SetSpatialFilter(NULL);
+        layer->ResetReading();
+        if(restriction == true)
+        {
+            if(x_min < 0.0 || y_min < 0.0 || x_max < 0.0 || y_max < 0.0)
+            {
+                std::cerr << "Coordinates should be positive. " << std::endl;
+                exit(1);
+            }
+            layer->SetSpatialFilterRect(x_min, y_min, x_max, y_max);
+            std::cout << "Added spatial filter to dataset. To remove, call HydroshedsDataSet::ConstructSegment()." << std::endl;
+        }
+        RiverSegment::layer = this->layer;
+        OGRFeature* f = this->layer->GetNextFeature();
+        RiverSegment s(f, seg_num);
+        return s;
+    }
+
+/* -- CLASS RIVER SEGMENT -- */
+    RiverSegment::RiverSegment(OGRFeature* f, int seg_num)
+            : feature(f), segment(seg_num)
+    {
+        OGRGeometry* geometry = f->GetGeometryRef();
+        OGRMultiLineString* GLine = geometry->toMultiLineString();
+        this->segment_points.clear();
+        for(auto multi_line_string: *(GLine))
+        {
+            for(auto point: *(multi_line_string))
+            {
+                Coordinate p = {point.getX(), point.getY()};
+                this->segment_points.push_back(p);
+            }
+        }
+    }
+
+    RiverSegment::RiverSegment(const RiverSegment& R)
+    {
+        this->feature = R.feature;
+        this->segment = R.segment;
+        OGRGeometry* geometry = R.feature->GetGeometryRef();
+        OGRMultiLineString* GLine = geometry->toMultiLineString();
+        this->segment_points.clear();
+        for(auto multi_line_string: *(GLine))
+        {
+            for(auto point: *(multi_line_string))
+            {
+                Coordinate p = {point.getX(), point.getY()};
+                this->segment_points.push_back(p);
+            }
+        }
+    }
+
+    std::tuple <const char*, int, double>  RiverSegment::summary(bool verbose = false) const
+    {
+        std::tuple <const char*, int, double> inf(this->feature->GetGeometryRef()->getGeometryName(), this->get_number_of_subsegments(), feature->GetFieldAsDouble("LENGTH_KM"));
+        if(verbose == true)
+        {
+            std::cout << "Geometry type of current feature: " << std::get <const char*>(inf) << "\n";
+            std::cout << "Number of subsegments in feature: " << std::get <int>(inf) << "\n";
+            std::cout << "Geological length of feature (in Km): " << std::get <double>(inf) << std::endl;
+        }
+        return inf;
+    }
+
+    int RiverSegment::get_number_of_subsegments() const
+    {
+        return segment_points.size() % 2 == 0 ? segment_points.size() / 2 : segment_points.size() / 2 + 1;
+    }
+
+    double RiverSegment::getLength() const
+    {
+        Coordinate p1 = this->getStartingPoint(segment);
+        Coordinate p2 = this->getEndPoint(segment);
+        return std::sqrt(std::pow(71.500 * (p1[0] - p2[0]), 2) + std::pow(111.300 * (p1[1] - p2[1]), 2));
+    }
+
+    double RiverSegment::getTotalLength() const
+    {
+        double total_length = 0.0;
+        for(int i = 0; i < this->get_number_of_subsegments(); i++)
+        {
+            Coordinate p1 = this->getStartingPoint(i);
+            Coordinate p2 = this->getEndPoint(i);
+            total_length += std::sqrt(std::pow(71.5 * (p1[0] - p2[0]), 2) + std::pow(111.3 * (p1[1] - p2[1]), 2));
+        }
+        return total_length;
+    }
+
+    double RiverSegment::getGeologicalLength() const
+    {
+        double geological_length_of_feature = feature->GetFieldAsDouble("LENGTH_KM");
+        double length_of_current_segment = this->getLength();
+        double total_length = this->getTotalLength();
+        return (length_of_current_segment / total_length) * geological_length_of_feature;
     }
 
     double RiverSegment::getDischarge() const
@@ -50,89 +157,117 @@ namespace hydrosheds {
         return feature->GetFieldAsDouble("DIS_AV_CMS");
     }
 
-    OGRLineString* getLineString(OGRFeature* feature)
+    Coordinate RiverSegment::getStartingPoint(int seg) const
     {
-        OGRGeometry* geo = feature->GetGeometryRef();
-        OGRMultiLineString* multiline = geo->toMultiLineString();
-        OGRLineString* line = *(multiline->begin());
-        return line;
+        int count = 0;
+        Coordinate p;
+        for(int i = 0; i < segment_points.size(); i += 2)
+        {
+            if (count == seg)
+            {
+                p = segment_points[i];
+                break;
+            }
+            count += 1;
+        }
+        return p;
     }
 
-    Coordinate RiverSegment::getStartingPoint() const
+    Coordinate RiverSegment::getEndPoint(int seg) const
     {
-        // Extract the curve start point
-        OGRPoint start;
-        getLineString(feature)->StartPoint(&start);
-
-        return Coordinate{start.getX(), start.getY()};
-    }
-
-    Coordinate RiverSegment::getEndPoint() const
-    {
-        // Extract the curve start point
-        OGRPoint end;
-        getLineString(feature)->EndPoint(&end);
-
-        return Coordinate{end.getX(), end.getY()};
+        int count = 0;
+        Coordinate p;
+        for(int i = 1; i < segment_points.size(); i += 2)
+        {
+            if (count == seg)
+            {
+                p = segment_points[i];
+                break;
+            }
+            count += 1;
+        }
+        return p;
     }
 
     bool RiverSegment::hasDownstreamSegment() const
     {
-        // If the NEXT_DOWN field is 0, there is no downstream segment
-        if (feature->GetFieldAsInteger("NEXT_DOWN") == 0)
-            return false;
-
-        // If the ENDORHEIC field is 1, there is also no downstream segment
-        // TODO: This is my limited understanding - might need to rethink
-        if (feature->GetFieldAsInteger("ENDORHEIC") == 1)
-            return false;
-
-        // In all other cases, there is a downstream segment;
+        if(segment == segment_points.size() - 1)
+        {
+            if(feature->GetFieldAsInteger("NEXT_DOWN") == 0 || feature->GetFieldAsInteger("ENDORHEIC") == 1)
+            {
+                return false;
+            }
+        }
         return true;
     }
 
-    double RiverSegment::getLength() const
+    OGRFeature* RiverSegment::search_feature(unsigned int NEXT_DOWN_ID) const
     {
-        return getLineString(feature)->get_Length();
+        RiverSegment::layer->ResetReading();
+        std::string query = "HYRIV_ID = " + std::to_string(NEXT_DOWN_ID);
+        layer->SetAttributeFilter(query.c_str());
+        return RiverSegment::layer->GetNextFeature();
     }
 
-    double RiverSegment::getGeologicalLength() const
+    RiverSegment RiverSegment::getDownstreamSegment()
     {
-        return feature->GetFieldAsDouble("LENGTH_KM");
+        if(this->hasDownstreamSegment() == false)
+        {
+            std::cerr << "No downstream segments for current segment." << std::endl;
+            exit(1);
+        }
+
+        OGRFeature* f;
+        int new_segment_id;
+        if(this->segment < this->get_number_of_subsegments() - 1)
+        {
+            f = feature;
+            new_segment_id = this->segment + 1;
+        }
+        else
+        {
+            f = this->search_feature(feature->GetFieldAsInteger("NEXT_DOWN"));
+            new_segment_id = 0;
+        }
+        // new_segment_id = this->segment + 1;
+        RiverSegment s(f, new_segment_id);
+        return s;
     }
+    /// till Anirudh : -----------------------------
+
+
+    FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(HydroshedsDataSet dataset,OGRFeature* feature)
+    {
+        this->feature = feature;
+        HydroshedsDataSet hydroshedsDataSet;
+        this->dataSet = hydroshedsDataSet;
+        segment = dataSet.ConstructSegment();
+        this->layer = segment.layer;
+    }
+
 
     // begin and end of the hydroshedsdata
     FullDatasetRiverSegmentIterator HydroshedsDataSet::begin() const
     {
         this->layer->ResetReading();
         auto feature = layer->GetNextFeature();
-        FullDatasetRiverSegmentIterator start(feature, layer);
+        FullDatasetRiverSegmentIterator start((*this),feature);
         return start;
     }
 
     FullDatasetRiverSegmentIterator HydroshedsDataSet::end() const
     {
-        FullDatasetRiverSegmentIterator end(NULL, layer);
+        //std::cout << "End is calling" << std::endl;
+        FullDatasetRiverSegmentIterator end((*this));
+        end->feature = NULL;
         return end;
     }
-
-
-    // FullDataSetRiverSegmentIterator
-    FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(OGRFeature* ogrFeature, OGRLayer* ogrLayer)
-            : segment(ogrLayer, ogrFeature)
-    {
-        // intializing the values
-        feature = ogrFeature;
-        layer = ogrLayer;
-    }
-
-
-
 
     // Prefix increment
     FullDatasetRiverSegmentIterator FullDatasetRiverSegmentIterator::operator++()
     {
         // "incrementing" the Feature first
+
         auto nextFeature = this->layer->GetNextFeature();
         this->segment.feature = nextFeature;
         this->feature = nextFeature;
@@ -156,7 +291,8 @@ namespace hydrosheds {
     {
         bool result;
         //result = feature->Equal(a.feature);
-        result = feature == a.feature;
+        //result = feature == a.feature;
+        result = this->feature == a.feature;
         return result; // do pointer equality
     }
 
@@ -179,20 +315,22 @@ namespace hydrosheds {
     }
 
 
+
+    // DownstreamIterator
     DownstreamIterator HydroshedsDataSet::followbegin(Coordinate x) const
     {
         hydrosheds::Coordinate closest = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
         // iterate over all from the FullDatasetRiverSegmentIterator and find RiverSegment closest to x
-        RiverSegment segment(this->layer, this->layer->GetFeature(0));
+        RiverSegment segment = (*this).ConstructSegment();
         for(auto i : (*this))
         {
-            auto start = i.getStartingPoint();
+            auto start = i.getStartingPoint(count);
             // comparing other Segments to check if there ones being closer than the
             // current closest one
             if(impl::norm(x, start)<impl::norm(x, closest))
             {
                 segment = i;
-                closest = i.getStartingPoint();
+                closest = i.getStartingPoint(count);
             }
         }
         DownstreamIterator result(segment);
@@ -253,8 +391,6 @@ namespace hydrosheds {
     }
 
 
-
-
     namespace impl{
         double norm(hydrosheds::Coordinate x, hydrosheds::Coordinate y)
         {
@@ -267,14 +403,14 @@ namespace hydrosheds {
         {
             hydrosheds::Coordinate closest = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
             // iterate over all from the FullDatasetRiverSegmentIterator and find RiverSegment closest to x
-            RiverSegment segment(dataset.layer, dataset.layer->GetFeature(0));
+            RiverSegment segment;
             for(auto i : dataset)
             {
-                auto start = i.getStartingPoint();
+                auto start = i.getStartingPoint(dataset.count);
                 if(impl::norm(x, start)<impl::norm(x, closest))
                 {
                     segment = i;
-                    closest = i.getStartingPoint();
+                    closest = i.getStartingPoint(dataset.count);
                 }
             }
             DownstreamIterator result(segment);
@@ -296,5 +432,6 @@ namespace hydrosheds {
             return result;
         }
     }
+
 
 } // namespace hydrosheds
