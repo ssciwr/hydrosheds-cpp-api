@@ -39,3 +39,20 @@ which can be set by adding `-D<var>={ON, OFF}` to the `cmake` call:
 
 HydroShed C++ API provides a Sphinx-based documentation, that can
 be browsed [online at readthedocs.org](https://hydrosheds-cpp-api.readthedocs.io).
+
+
+# Where to install the Dataset?
+
+The HydroSheds C++ API uses the datasets provided from [Hydrosheds](https://www.hydrosheds.org/page/hydrorivers).
+Extract your package and mark the path to this folder.
+
+# How to run the HydroSheds C++ API?
+
+After installing the Geodatabases from [Hydrosheds](https://www.hydrosheds.org/page/hydrorivers) and building the app like suggested
+in the previous instructions, running the app proceeds as follows:
+
+```
+...
+make
+./hydrosheds_app <Path from the downloaded geodatabases>
+```

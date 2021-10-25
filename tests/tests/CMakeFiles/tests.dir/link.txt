@@ -1,0 +1,1 @@
+/Library/Developer/CommandLineTools/usr/bin/c++  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/tests.dir/tests.cc.o CMakeFiles/tests.dir/hydrosheds_t.cc.o -o tests  ../src/libhydrosheds.a /usr/local/Cellar/gdal/3.3.0_2/lib/libgdal.dylib 

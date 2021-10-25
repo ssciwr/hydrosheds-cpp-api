@@ -243,15 +243,18 @@ namespace hydrosheds {
         RiverSegment segment;
         HydroshedsDataSet dataSet;
         OGRFeature *feature;
-        OGRLayer *layer;
+        //OGRLayer *layer;
 
         /**
          * @brief This constructor builds an object of the FullDatasetRiverSegment class using the @c HydroshedsDataSet
          * as a parameter. It construct a @c RiverSegment using the @c ConstructSegment method from the @c HydroshedsDataSet
          * @param hydroshedsDataSet
          */
+         /*
         FullDatasetRiverSegmentIterator(HydroshedsDataSet hydroshedsDataSet): dataSet(hydroshedsDataSet){segment = dataSet.ConstructSegment();
-        this->feature = segment.feature; this->layer = segment.layer;};
+        this->feature = segment.feature; this->count=segment.getfeature_index();
+        */
+         FullDatasetRiverSegmentIterator(HydroshedsDataSet);
 
 
         /** @brief  Constructor using a @c HydroshedsDataSet object and @c OGRFeature for constructing.

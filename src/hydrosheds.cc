@@ -78,6 +78,10 @@ namespace hydrosheds {
     RiverSegment::RiverSegment(OGRFeature* f, int seg_num)
             : feature(f), segment(seg_num)
     {
+        /*if(this->getfeature_index()==(unsigned long long) layer->GetFeatureCount());
+        {
+            std::cout << "Hallo1" << std::endl;
+        }*/
         OGRGeometry* geometry = f->GetGeometryRef();
         OGRMultiLineString* GLine = geometry->toMultiLineString();
         this->segment_points.clear();
@@ -93,19 +97,31 @@ namespace hydrosheds {
 
     RiverSegment::RiverSegment(const RiverSegment& R)
     {
-        this->feature = R.feature;
-        this->segment = R.segment;
-        OGRGeometry* geometry = R.feature->GetGeometryRef();
-        OGRMultiLineString* GLine = geometry->toMultiLineString();
-        this->segment_points.clear();
-        for(auto multi_line_string: *(GLine))
+        OGRGeometry* geometry;
+        OGRMultiLineString* GLine;
+        if(this->getfeature_index()==layer->GetFeatureCount())
         {
-            for(auto point: *(multi_line_string))
+            this->feature = NULL;
+            this->segment = R.segment;
+            geometry = NULL;
+            GLine = NULL;
+        }else{
+            this->feature = R.feature;
+            this->segment = R.segment;
+            geometry = R.feature->GetGeometryRef();
+            GLine = geometry->toMultiLineString();
+            this->segment_points.clear();
+            for(auto multi_line_string: *(GLine))
             {
-                Coordinate p = {point.getX(), point.getY()};
-                this->segment_points.push_back(p);
+                for(auto point: *(multi_line_string))
+                {
+                    Coordinate p = {point.getX(), point.getY()};
+                    this->segment_points.push_back(p);
+                }
             }
         }
+        //OGRGeometry* geometry = R.feature->GetGeometryRef(); //<- Here is the bad boy
+        //OGRMultiLineString* GLine = geometry->toMultiLineString();
     }
 
     std::tuple <const char*, int, double>  RiverSegment::summary(bool verbose = false) const
@@ -235,17 +251,24 @@ namespace hydrosheds {
     }
     /// till Anirudh : -----------------------------
 
+    FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(HydroshedsDataSet hydroshedsDataSet)
+    :dataSet(hydroshedsDataSet), segment(hydroshedsDataSet.ConstructSegment())
+{
+    this->feature = segment.feature;
+    //this->count=segment.getfeature_index();
+    /*this->layer = segment.layer;*/
+}
 
-    FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(HydroshedsDataSet dataset,OGRFeature* feature)
+
+    FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(HydroshedsDataSet hydroshedsDataSet,OGRFeature* feature)
+    :dataSet(hydroshedsDataSet), segment(hydroshedsDataSet.ConstructSegment())
     {
+        this->segment.feature=feature;
         this->feature = feature;
-        HydroshedsDataSet hydroshedsDataSet;
-        this->dataSet = hydroshedsDataSet;
-        segment = dataSet.ConstructSegment();
-        this->layer = segment.layer;
     }
 
 
+    // is okay
     // begin and end of the hydroshedsdata
     FullDatasetRiverSegmentIterator HydroshedsDataSet::begin() const
     {
@@ -255,11 +278,12 @@ namespace hydrosheds {
         return start;
     }
 
+    // is okay
     FullDatasetRiverSegmentIterator HydroshedsDataSet::end() const
     {
-        //std::cout << "End is calling" << std::endl;
         FullDatasetRiverSegmentIterator end((*this));
-        end->feature = NULL;
+        end.feature = NULL;
+        end.segment.feature = NULL;
         return end;
     }
 
@@ -267,33 +291,42 @@ namespace hydrosheds {
     FullDatasetRiverSegmentIterator FullDatasetRiverSegmentIterator::operator++()
     {
         // "incrementing" the Feature first
-
-        auto nextFeature = this->layer->GetNextFeature();
-        this->segment.feature = nextFeature;
-        this->feature = nextFeature;
-        return (*this);
+        //check if the feature is the last one of the layer
+        if(this->segment.getfeature_index()==(this->dataSet.shape())[0]) {
+            this->segment.feature = NULL;
+            this->feature = NULL;
+            return (*this);
+        }else {
+            auto nextFeature = this->segment.layer->GetNextFeature();
+            this->segment.feature = nextFeature;
+            return (*this);
+        }
     }
 
     // Postfix increment
     FullDatasetRiverSegmentIterator FullDatasetRiverSegmentIterator::operator++(int)
     {
-        // returning the feature first
-        auto result = (*this);
-        auto nextFeature = this->layer->GetNextFeature();
-        this->segment.feature = nextFeature;
-        this->feature = nextFeature;
-        return result;
+        // returning the feature afterwards
+        //check if the feature is the last one of the layer
+        if(this->segment.getfeature_index()==(this->dataSet.shape())[0]) {
+            FullDatasetRiverSegmentIterator result = (*this);
+            this->segment.feature = NULL;
+            this->feature = NULL;
+            return result;
+        }else {
+            FullDatasetRiverSegmentIterator result = (*this);
+            auto nextFeature = this->segment.layer->GetNextFeature();
+            this->segment.feature = nextFeature;
+            this->feature = nextFeature;
+            return result;
+        }
     }
 
     // Two implementations for the comparison operators
-
     bool FullDatasetRiverSegmentIterator::operator==(const FullDatasetRiverSegmentIterator& a)
     {
-        bool result;
-        //result = feature->Equal(a.feature);
-        //result = feature == a.feature;
-        result = this->feature == a.feature;
-        return result; // do pointer equality
+        // pointer equality
+        return this->feature == a.feature;
     }
 
 
@@ -305,12 +338,14 @@ namespace hydrosheds {
 
     RiverSegment* FullDatasetRiverSegmentIterator::operator->()
     {
+        //std::cout << "calling the ->" << std::endl;
         return &segment;
     }
 
 
     RiverSegment& FullDatasetRiverSegmentIterator::operator*()
     {
+        //std::cout << "calling the *" << std::endl;
         return segment;
     }
 
@@ -322,15 +357,18 @@ namespace hydrosheds {
         hydrosheds::Coordinate closest = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
         // iterate over all from the FullDatasetRiverSegmentIterator and find RiverSegment closest to x
         RiverSegment segment = (*this).ConstructSegment();
-        for(auto i : (*this))
+        auto itend = (*this).end();
+        for(auto i =(*this).begin(); i!=itend; ++i)
         {
-            auto start = i.getStartingPoint(count);
+            auto start = i->getStartingPoint(count);
             // comparing other Segments to check if there ones being closer than the
             // current closest one
             if(impl::norm(x, start)<impl::norm(x, closest))
             {
-                segment = i;
-                closest = i.getStartingPoint(count);
+                //segment=i;
+                segment.feature = i->feature;
+                segment.segment = i->segment;
+                closest = i->getStartingPoint(count);
             }
         }
         DownstreamIterator result(segment);
