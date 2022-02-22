@@ -272,9 +272,10 @@ namespace hydrosheds {
     // begin and end of the hydroshedsdata
     FullDatasetRiverSegmentIterator HydroshedsDataSet::begin() const
     {
+        //FullDatasetRiverSegmentIterator e((*this)); // just for debugging purposes
         this->layer->ResetReading();
         auto feature = layer->GetNextFeature();
-        FullDatasetRiverSegmentIterator start((*this),feature);
+        FullDatasetRiverSegmentIterator start((*this), feature);
         return start;
     }
 
