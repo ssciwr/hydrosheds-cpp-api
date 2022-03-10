@@ -244,12 +244,21 @@ namespace hydrosheds {
 
 
 
+
     // ---------------------------------------------------------
     // This for the implementation for the FullDatasetRiverSegmentIterator class
     // ---------------------------------------------------------
     FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator()
             : feature(NULL)
     {}
+  
+    FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(HydroshedsDataSet hydroshedsDataSet,OGRFeature* feature)
+    : segment(hydroshedsDataSet.ConstructSegment())
+    {
+        this->segment.feature=feature;
+        this->feature = feature;
+    }
+
 
 
     FullDatasetRiverSegmentIterator HydroshedsDataSet::begin() const
@@ -286,6 +295,7 @@ namespace hydrosheds {
     // Postfix increment
     FullDatasetRiverSegmentIterator FullDatasetRiverSegmentIterator::operator++(int)
     {
+
         FullDatasetRiverSegmentIterator result = (*this);
         auto nextFeature = this->segment.layer->GetNextFeature();
         this->segment.feature = nextFeature;

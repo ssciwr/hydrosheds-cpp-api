@@ -292,5 +292,4 @@ namespace hydrosheds {
 
         bool operator!=(const FullDatasetRiverSegmentIterator& a);
     };
-
-} // namespace hydrosheds
+    } // namespace hydrosheds

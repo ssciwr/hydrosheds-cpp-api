@@ -14,7 +14,6 @@ int main(int argc, char** argv)
         }
 
         // Initialise the data set.
-
     HydroshedsDataSet D(argv[1], 0);
     for(const auto& seg : D)
         std::cout << seg.getGeologicalLength() << std::endl;
