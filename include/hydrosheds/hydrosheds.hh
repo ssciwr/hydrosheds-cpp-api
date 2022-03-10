@@ -241,7 +241,6 @@ namespace hydrosheds {
     class FullDatasetRiverSegmentIterator{
     public:
         RiverSegment segment;
-        HydroshedsDataSet dataSet;
         OGRFeature *feature;
         //OGRLayer *layer;
 
@@ -254,7 +253,7 @@ namespace hydrosheds {
         FullDatasetRiverSegmentIterator(HydroshedsDataSet hydroshedsDataSet): dataSet(hydroshedsDataSet){segment = dataSet.ConstructSegment();
         this->feature = segment.feature; this->count=segment.getfeature_index();
         */
-         FullDatasetRiverSegmentIterator(HydroshedsDataSet);
+         FullDatasetRiverSegmentIterator();
 
 
         /** @brief  Constructor using a @c HydroshedsDataSet object and @c OGRFeature for constructing.
@@ -417,7 +416,7 @@ namespace hydrosheds {
          */
         DownstreamIterator end() const;
         };
-
+    }
 
         /** @brief This method is basically for initializing the DownstreamIteratorHelper struct for iterating over
          *          the dataset via a ranged based loop
@@ -427,8 +426,8 @@ namespace hydrosheds {
          * @param x
          * @return a DownstreamIteratonHelper with a given dataset and a Coordinate
          */
-        DownstreamIterationHelper followstream(const hydrosheds::HydroshedsDataSet& dataset, hydrosheds::Coordinate x);
-        }
+        impl::DownstreamIterationHelper followstream(const hydrosheds::HydroshedsDataSet& dataset, hydrosheds::Coordinate x);
+        
 
 
 

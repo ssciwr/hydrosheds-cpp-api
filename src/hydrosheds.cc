@@ -57,7 +57,7 @@ namespace hydrosheds {
                                                      double x_max, double y_max, bool restriction, int seg_num) const
     {
         layer->SetSpatialFilter(NULL);
-        layer->ResetReading();
+        // layer->ResetReading();
         if(restriction == true)
         {
             if(x_min < 0.0 || y_min < 0.0 || x_max < 0.0 || y_max < 0.0)
@@ -251,17 +251,19 @@ namespace hydrosheds {
     }
     /// till Anirudh : -----------------------------
 
-    FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(HydroshedsDataSet hydroshedsDataSet)
-    :dataSet(hydroshedsDataSet), segment(hydroshedsDataSet.ConstructSegment())
-{
-    this->feature = segment.feature;
-    //this->count=segment.getfeature_index();
-    /*this->layer = segment.layer;*/
-}
-
+//     FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(HydroshedsDataSet hydroshedsDataSet)
+//     :dataSet(hydroshedsDataSet), segment(hydroshedsDataSet.ConstructSegment())
+// {
+//     this->feature = segment.feature;
+//     //this->count=segment.getfeature_index();
+//     /*this->layer = segment.layer;*/
+// }
+    FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator()
+      : feature(NULL)
+    {}
 
     FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(HydroshedsDataSet hydroshedsDataSet,OGRFeature* feature)
-    :dataSet(hydroshedsDataSet), segment(hydroshedsDataSet.ConstructSegment())
+    : segment(hydroshedsDataSet.ConstructSegment())
     {
         this->segment.feature=feature;
         this->feature = feature;
@@ -282,45 +284,57 @@ namespace hydrosheds {
     // is okay
     FullDatasetRiverSegmentIterator HydroshedsDataSet::end() const
     {
-        FullDatasetRiverSegmentIterator end((*this));
-        end.feature = NULL;
-        end.segment.feature = NULL;
-        return end;
+        // FullDatasetRiverSegmentIterator end();
+        // end.feature = NULL;
+        // end.segment.feature = NULL;
+        return FullDatasetRiverSegmentIterator();
     }
 
     // Prefix increment
     FullDatasetRiverSegmentIterator FullDatasetRiverSegmentIterator::operator++()
     {
-        // "incrementing" the Feature first
-        //check if the feature is the last one of the layer
-        if(this->segment.getfeature_index()==(this->dataSet.shape())[0]) {
-            this->segment.feature = NULL;
-            this->feature = NULL;
-            return (*this);
-        }else {
-            auto nextFeature = this->segment.layer->GetNextFeature();
-            this->segment.feature = nextFeature;
-            return (*this);
-        }
+      auto nextFeature = this->segment.layer->GetNextFeature();
+      this->segment.feature = nextFeature;
+      this->feature = nextFeature;
+      return *this;
+        // // "incrementing" the Feature first
+        // //check if the feature is the last one of the layer
+        // if(this->segment.getfeature_index()==(this->dataSet.shape())[0]) {
+        //     this->segment.feature = NULL;
+        //     this->feature = NULL;
+        //     return (*this);
+        // }else {
+        //     auto nextFeature = this->segment.layer->GetNextFeature();
+        //     this->segment.feature = nextFeature;
+        //     return (*this);
+        // }
     }
 
     // Postfix increment
     FullDatasetRiverSegmentIterator FullDatasetRiverSegmentIterator::operator++(int)
     {
-        // returning the feature afterwards
-        //check if the feature is the last one of the layer
-        if(this->segment.getfeature_index()==(this->dataSet.shape())[0]) {
-            FullDatasetRiverSegmentIterator result = (*this);
-            this->segment.feature = NULL;
-            this->feature = NULL;
-            return result;
-        }else {
-            FullDatasetRiverSegmentIterator result = (*this);
-            auto nextFeature = this->segment.layer->GetNextFeature();
-            this->segment.feature = nextFeature;
-            this->feature = nextFeature;
-            return result;
-        }
+      FullDatasetRiverSegmentIterator result = (*this);
+      auto nextFeature = this->segment.layer->GetNextFeature();
+      this->segment.feature = nextFeature;
+      this->feature = nextFeature;
+      return result;
+
+        //     this->feature = NULL;
+        //     return result;  
+        // // returning the feature afterwards
+        // //check if the feature is the last one of the layer
+        // if(this->segment.getfeature_index()==(this->dataSet.shape())[0]) {
+        //     FullDatasetRiverSegmentIterator result = (*this);
+        //     this->segment.feature = NULL;
+        //     this->feature = NULL;
+        //     return result;
+        // }else {
+        //     FullDatasetRiverSegmentIterator result = (*this);
+        //     auto nextFeature = this->segment.layer->GetNextFeature();
+        //     this->segment.feature = nextFeature;
+        //     this->feature = nextFeature;
+        //     return result;
+        // }
     }
 
     // Two implementations for the comparison operators
