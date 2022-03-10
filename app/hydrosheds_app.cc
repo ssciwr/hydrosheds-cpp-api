@@ -2,17 +2,9 @@
 #include <iostream>
 #include <thread>
 #include <iomanip>
-//#include "hydrosheds/hydroshedsTest.h"
 
 using namespace hydrosheds;
 
-/*
-int main(int argc, char** argv) {
-
-
-    std::string s = "/Users/halilibrahim/Desktop/HydroRIVERS_v10_eu/HydroRIVERS_v10_eu.gdb";
-    HydroshedsDataSet D(s, 0);
-*/
 int main(int argc, char** argv)
 {
         if(argc != 2)
@@ -22,18 +14,9 @@ int main(int argc, char** argv)
         }
 
         // Initialise the data set.
-        HydroshedsDataSet D(argv[1], 0);
 
-
-    // works just fine
-    auto itend = D.end();
-    for(auto it = D.begin(); it!=itend; it++)
-        std::cout << it->getfeature_index() << std::endl;
-
-    // result in a segmentation fault
-    /*
-    for(auto it : D)
-        std::cout << it.getGeologicalLength() << std::endl;
-        */
+    HydroshedsDataSet D(argv[1], 0);
+    for(const auto& seg : D)
+        std::cout << seg.getGeologicalLength() << std::endl;
     return 0;
 }
