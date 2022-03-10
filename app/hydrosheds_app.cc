@@ -14,24 +14,30 @@ int main(int argc, char** argv)
     // Initialise the data set.
     HydroshedsDataSet D(argv[1], 0);
 
+    // Initial testing
+    std::cout << "Shape: " << "(" << D.shape()[0] << ", "  << D.shape()[1] << ")" << std::endl;
+
+    // Fields in the dataset.
+    D.FeatureAttributes();
+
     // Initialise a river segment object.
     // RiverSegment R = D.ConstructSegment(-100.0, -50.0, 100.0, 50.0, false, 3);
-    RiverSegment R = D.ConstructSegment();
-    // Initial testing
-    std::cout << "Shape: " << "(" << D.shape()[0] 
-                << ", "  << D.shape()[1] << ")" << std::endl;
+    // std::cout << "Shape: " << "(" << D.shape()[0] 
+    //             << ", "  << D.shape()[1] << ")" << std::endl;
+    RiverSegment R = D.ConstructSegment(100);
+   
                 
-    std::cout << "SUMMARY" << std::endl;
+    // std::cout << "SUMMARY" << std::endl;
     R.summary(true);
     
-    // std::cout << "LENGTHS ------" << std::endl;
-    // std::cout << R.getLength() << std::endl;
-    // std::cout << R.getTotalLength() << std::endl;
-    // std::cout << R.getGeologicalLength() << std::endl;
+    std::cout << "LENGTHS ------" << std::endl;
+    std::cout << R.getLength() << std::endl;
+    std::cout << R.getTotalLength() << std::endl;
+    std::cout << R.getGeologicalLength() << std::endl;
     
     std::cout << "DOWNSTREAM ITERATION ------" << std::endl;
     RiverSegment R1 = R;
-    for(int i = 1; i < 10; i++)
+    for(int i = 1; i < 20; i++)
     {
         std::cout << "Getting downstream segments..." << std::endl;
         R1 = R1.getDownstreamSegment();
@@ -39,10 +45,14 @@ int main(int argc, char** argv)
         std::cout << "Current subsegment: " << R1.get_segment() << std::endl; 
     }
 
-    // std::cout << "Getting downstream segments..." << std::endl;
-    // RiverSegment R1 = R.getDownstreamSegment();
-    // std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
-    // std::cout << "Current subsegment: " << R1.get_segment() << std::endl;
-
     return 0;
 }
+
+// TODO: What to do when downstream iteration ends.
+// TODO: Revamp documentation (especially method desriptions).
+// TODO: Check shp compatibility.
+// TODO: Make everything camel case.
+// TODO: Make getDownstreamSegment more efficient.
+// MAYBE: Enum for geometry types.
+// MAYBE: Use <stdint> for types.
+

@@ -28,7 +28,7 @@ namespace hydrosheds
 	 */
 	class HydroshedsDataSet
 	{
-	public:
+		public:
 		/** @brief main constructor
 		 * Default constructor.
 		 */ 
@@ -40,7 +40,7 @@ namespace hydrosheds
 		 * @param l_num is the layer number to be initailised.
 		 * Defaults to 0 (first layer).
 		 */  
-		HydroshedsDataSet(const std::string&, int l_num);
+		HydroshedsDataSet(const std::string&, const int layerNumber = 1);
 
 		/** @brief Get dataset dimensions
 		 * Returns the size of the dataset as an 
@@ -66,10 +66,10 @@ namespace hydrosheds
 		 * restriction to a rectangular region
 		 * should be applied. It is by default @c false.
 		 */
-		RiverSegment ConstructSegment(double x_min = 0.0, double y_min = 0.0, 
-    	double x_max = 0.0, double y_max = 0.0, bool restriction = false, const int feature_index = 100) const;
+		RiverSegment ConstructSegment(const int featureIndex = 1, bool restriction = false, double x_min = 0.0, double y_min = 0.0, 
+    	double x_max = 0.0, double y_max = 0.0) const;
 
-	private:
+		private:
 		GDALDataset* data;
 		OGRLayer* layer;
 	};
@@ -162,7 +162,7 @@ namespace hydrosheds
 		 * in a feature. The count is based on the
 		 * start and end points of one subsegment.
 		 */
-		int get_number_of_subsegments() const;
+		int getNumberOfSegments() const;
  
 		long get_segment() const
 		{
@@ -190,7 +190,7 @@ namespace hydrosheds
 		 * by setting the search criterion of 
 		 * @c OGRLayer::GetNextFeature() .
 		 */
-		OGRFeature* search_feature(unsigned int) const;
+		OGRFeature* searchFeature(unsigned int) const;
 
 		static OGRLayer* layer;
 		OGRFeature* feature;
