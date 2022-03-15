@@ -39,7 +39,7 @@ namespace hydrosheds
 		 * @param LayerNumber is the layer number to be initailised.
 		 * Defaults to 0 (first layer).
 		 */  
-		HydroshedsDataSet(const std::string&, const int LayerNumber = 0);
+		HydroshedsDataSet(const std::string&, const int = 0);
 
 		/** @brief Get dataset dimensions
 		 * Returns the size of the dataset as an 
@@ -60,19 +60,19 @@ namespace hydrosheds
 		 */ 
 		std::string GetSpatialReferenceName() const;
 
-		/** @brief Access to the subsegments of each feature
+		/** @brief Access to the subsegments of each feature.
 		 * Constructs an instance of the subsegment interface.
 		 * By defeault the contructor holds the passes the first subsegment  
 		 * of the first feature in the dataset. 
 		 * @param FeatureIndex can be used to specify which feature (according  * to the FID (defined in the GDAL documentation)) will be constructed. 
-		 * ( @param x_min, @param y_min) and ( @param x_max, @param y_max)
+		 * ( @param XMin, @param YMin) and ( @param XMax, @param YMax)
 		 * are used to specify the lower left and upper right 
-		 * corners of the rectangle. They are by default @c NULL .
+		 * corners of the rectangle. They are by default @c 0.
 		 * @param restriction is used to specify whether a
 		 * restriction to a rectangular region
 		 * should be applied. It is by default @c false.
 		 */
-		RiverSegment ConstructSegment(const int FeatureIndex = 1, bool restriction = false, double XMin = 0.0, double YMin = 0.0, double XMax = 0.0, double YMax = 0.0) const;
+		RiverSegment ConstructSegment(const int = 1, bool = false, double = 0.0, double = 0.0, double = 0.0, double = 0.0) const;
 
 		private:
 			GDALDataset* data;
@@ -171,12 +171,21 @@ namespace hydrosheds
 		RiverSegment GetDownstreamSegment();
 
  
-		long get_segment() const
+		/** @brief Segment Number.
+		 * @returns the segment number at 
+		 * which the current instance of RiverSegment
+		 * has been initialised.
+		 */
+		unsigned int GetCurrentSegment() const
 		{
 			return this->segment;
 		}
 
-		int getfeature_index() const
+		/** @brief Feature Number.
+		 * @returns the current feature number of  
+		 * the current instance of RiverSegment.
+		 */
+		unsigned int GetFeatureIndex() const
 		{
 			return this->feature->GetFID();
 		}

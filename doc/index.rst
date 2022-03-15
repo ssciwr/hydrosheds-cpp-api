@@ -1,4 +1,10 @@
-.. mdinclude:: ../README.md
+HydroSheds C++ API
+==================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
 
 Introduction
 ------------
@@ -10,10 +16,23 @@ The main interface allows ones to interact with `.gdb` and `.shp` files. One can
 
 The rasterisation framework allows one to render the data specified by constructing the `RiverSegment`.
 
-Add example of downstream iteration.
-
 .. doxygenclass:: hydrosheds::HydroshedsDataSet
    :members:
 
 .. doxygenclass:: hydrosheds::RiverSegment
    :members:
+
+Examples
+--------
+.. code-block:: c++
+   HydroshedsDataSet D(<path_to_dataset>, 0);
+   RiverSegment R = D.ConstructSegment(100);
+   RiverSegment R1 = R;
+   for (int i = 1; i < 20; i++)
+   {
+      std::cout << "Getting downstream segments..." << std::endl;
+      R1 = R1.GetDownstreamSegment();
+      std::cout << "Feature index: " << R1.GetFeatureIndex() << std::endl;
+      std::cout << "Current subsegment: " << R1.GetCurrentSegment() << std::endl; 
+   }
+

@@ -41,18 +41,10 @@ int main(int argc, char** argv)
     {
         std::cout << "Getting downstream segments..." << std::endl;
         R1 = R1.GetDownstreamSegment();
-        std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
-        std::cout << "Current subsegment: " << R1.get_segment() << std::endl; 
+        std::cout << "Feature index: " << R1.GetFeatureIndex() << std::endl;
+        std::cout << "Current subsegment: " << R1.GetCurrentSegment() << std::endl; 
     }
 
     return 0;
 }
-
-// TODO: What to do when downstream iteration ends.
-// TODO: Revamp documentation (especially method desriptions).
-// TODO: Check shp compatibility.
-// TODO: Make everything camel case.
-// TODO: Make getDownstreamSegment more efficient.
-// MAYBE: Enum for geometry types.
-// MAYBE: Use <stdint> for types.
 
