@@ -31,16 +31,16 @@ int main(int argc, char** argv)
     R.summary(true);
     
     std::cout << "LENGTHS ------" << std::endl;
-    std::cout << R.getLength() << std::endl;
-    std::cout << R.getTotalLength() << std::endl;
-    std::cout << R.getGeologicalLength() << std::endl;
+    std::cout << R.GetLength() << std::endl;
+    std::cout << R.GetTotalLength() << std::endl;
+    std::cout << R.GetGeologicalLength() << std::endl;
     
     std::cout << "DOWNSTREAM ITERATION ------" << std::endl;
     RiverSegment R1 = R;
     for(int i = 1; i < 20; i++)
     {
         std::cout << "Getting downstream segments..." << std::endl;
-        R1 = R1.getDownstreamSegment();
+        R1 = R1.GetDownstreamSegment();
         std::cout << "Feature index: " << R1.getfeature_index() << std::endl;
         std::cout << "Current subsegment: " << R1.get_segment() << std::endl; 
     }
