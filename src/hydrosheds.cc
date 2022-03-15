@@ -10,7 +10,7 @@ using namespace hydrosheds;
 OGRLayer* RiverSegment::layer;
 
 /* -- CLASS HYDROSHEDS DATA SET -- */
-HydroshedsDataSet::HydroshedsDataSet(const std::string& path, const int layerNumber)
+HydroshedsDataSet::HydroshedsDataSet(const std::string& path, const int LayerNumber)
 {
     GDALAllRegister();
     data = (GDALDataset*) GDALOpenEx(path.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
@@ -23,10 +23,11 @@ HydroshedsDataSet::HydroshedsDataSet(const std::string& path, const int layerNum
     if (data->GetLayerCount() > 1)
     {
         std::cout << "Dataset contains more than one layer." << "\n";
-        std::cout << "Initialising to layer " << layerNumber << "." << std::endl;
+        std::cout << "Initialising to layer " << LayerNumber << "." << std::endl;
     }
     
-    layer = data->GetLayer(layerNumber);
+    layer = data->GetLayer(LayerNumber);
+
 }
 
 std::array <unsigned long long, 2> HydroshedsDataSet::shape() const
@@ -49,66 +50,68 @@ int HydroshedsDataSet::FeatureAttributes() const
     return feature->GetFieldCount();
 }
 
-RiverSegment HydroshedsDataSet::ConstructSegment(const int featureIndex, 
+std::string HydroshedsDataSet::GetSpatialReferenceName() const
+{
+    return std::string(layer->GetSpatialRef()->GetName());
+}
+
+RiverSegment HydroshedsDataSet::ConstructSegment(const int FeatureIndex, 
                                                 bool restriction, 
-                                                double x_min, double y_min, 
-                                                double x_max, double y_max) const
+                                                double XMin, double YMin, 
+    	                                        double XMax, double YMax) const
 {
     layer->SetSpatialFilter(NULL);
     layer->ResetReading();
+
     if (restriction)
     {
-        if (x_min < 0.0 || y_min < 0.0 || x_max < 0.0 || y_max < 0.0)
-        {
-            throw std::domain_error("Coordinates should be positive.");
-        }
-
-        layer->SetSpatialFilterRect(x_min, y_min, x_max, y_max);
-        std::cout << "Added spatial filter to dataset. To remove, call HydroshedsDataSet::ConstructSegment()." << std::endl;
+        layer->SetSpatialFilterRect(XMin, YMin, XMax, YMax);
+        std::cout << "Added spatial filter to current instance of layer." << std::endl;
     }
 
-    if (featureIndex >= this->shape()[0])
+    if (FeatureIndex >= this->shape()[0] || FeatureIndex < 0)
     {
-        throw std::domain_error("Specified feature index exceeds the total number of features in the layer.");
+        throw std::domain_error("Specified feature index exceeds the total number of features in the layer or is negative.");
     }
 
     RiverSegment::layer = this->layer;
-    OGRFeature* f = this->layer->GetFeature(featureIndex);
+    OGRFeature* f = this->layer->GetFeature(FeatureIndex);
     RiverSegment s(f, 0);
     return s;
 }
 
 /* -- CLASS RIVER SEGMENT -- */
-RiverSegment::RiverSegment(OGRFeature* f, int seg_num)
-    : feature(f), segment(seg_num)
+RiverSegment::RiverSegment(OGRFeature* f, int SegNum)
+    : feature(f), segment(SegNum)
 {
     OGRGeometry* geometry = f->GetGeometryRef();
-    if (!segment_points.empty())
+
+    if (!SegmentPoints.empty())
     {
-        segment_points.clear();
+        SegmentPoints.clear();
     }
     std::string ls = "LINESTRING";
     std::string mls = "MULTILINESTRING";
-    std::string currentGeometryName = geometry->getGeometryName();
+    std::string CurrentGeometryName = geometry->getGeometryName();
 
-    if (currentGeometryName == ls)
+    if (CurrentGeometryName == ls)
     {
         OGRLineString* GLine = geometry->toLineString();
         for (auto point: *(GLine))
         {
             Coordinate p = {point.getX(), point.getY()};
-            segment_points.push_back(p);
+            SegmentPoints.push_back(p);
         }
     }
-    else if (currentGeometryName == mls)
+    else if (CurrentGeometryName == mls)
     {
         OGRMultiLineString* GLine = geometry->toMultiLineString();
-        for (auto lineString: *(GLine))
+        for (auto LineString: *(GLine))
         {
-            for (auto point: *(lineString))
+            for (auto point: *(LineString))
             {
                 Coordinate p = {point.getX(), point.getY()};
-                segment_points.push_back(p);
+                SegmentPoints.push_back(p);
             }
         }
     }
@@ -118,43 +121,43 @@ RiverSegment::RiverSegment(OGRFeature* f, int seg_num)
     }
 }
 
-RiverSegment::RiverSegment(const RiverSegment& R)
+// RiverSegment::RiverSegment(const RiverSegment& R)
+// {
+//     this->feature = R.feature;
+//     this->segment = R.segment;
+//     OGRGeometry* geometry = R.feature->GetGeometryRef();
+//     std::string ls = "LINESTRING";
+//     std::string mls = "MULTILINESTRING";
+//     std::string currentGeometryName = geometry->getGeometryName();
+
+//     this->segment_points.clear();
+
+//     if (currentGeometryName == ls)
+//     {
+//         OGRLineString* GLine = geometry->toLineString();
+//         for(auto point: *(GLine))
+//         {
+//             Coordinate p = {point.getX(), point.getY()};
+//             segment_points.push_back(p);
+//         }
+//     }
+//     else if (currentGeometryName == mls)
+//     {
+//         OGRMultiLineString* GLine = geometry->toMultiLineString();
+//         for(auto line_string: *(GLine))
+//         {
+//             for(auto point: *(line_string))
+//             {
+//                 Coordinate p = {point.getX(), point.getY()};
+//                 segment_points.push_back(p);
+//             }
+//         }
+//     }
+// }
+
+std::tuple <const char*, int, double> RiverSegment::summary(bool verbose) const
 {
-    this->feature = R.feature;
-    this->segment = R.segment;
-    OGRGeometry* geometry = R.feature->GetGeometryRef();
-    std::string ls = "LINESTRING";
-    std::string mls = "MULTILINESTRING";
-    std::string currentGeometryName = geometry->getGeometryName();
-
-    this->segment_points.clear();
-
-    if (currentGeometryName == ls)
-    {
-        OGRLineString* GLine = geometry->toLineString();
-        for(auto point: *(GLine))
-        {
-            Coordinate p = {point.getX(), point.getY()};
-            segment_points.push_back(p);
-        }
-    }
-    else if (currentGeometryName == mls)
-    {
-        OGRMultiLineString* GLine = geometry->toMultiLineString();
-        for(auto line_string: *(GLine))
-        {
-            for(auto point: *(line_string))
-            {
-                Coordinate p = {point.getX(), point.getY()};
-                segment_points.push_back(p);
-            }
-        }
-    }
-}
-
-std::tuple <const char*, int, double> RiverSegment::summary(bool verbose = false) const
-{
-    std::tuple <const char*, int, double> inf(this->feature->GetGeometryRef()->getGeometryName(),this->getNumberOfSegments(), 
+    std::tuple <const char*, int, double> inf(this->feature->GetGeometryRef()->getGeometryName(),this->GetNumberOfSegments(), 
     feature->GetFieldAsDouble("LENGTH_KM"));
     if (verbose)
     {
@@ -165,52 +168,52 @@ std::tuple <const char*, int, double> RiverSegment::summary(bool verbose = false
     return inf;
 }
 
-int RiverSegment::getNumberOfSegments() const
+int RiverSegment::GetNumberOfSegments() const
 {
-    return segment_points.size() % 2 == 0 ? segment_points.size() / 2 : segment_points.size() / 2 + 1;
+    return SegmentPoints.size() % 2 == 0 ? SegmentPoints.size() / 2 : SegmentPoints.size() / 2 + 1;
 }
 
-double RiverSegment::getLength() const
+double RiverSegment::GetLength() const
 {
-    Coordinate p1 = this->getStartingPoint(segment);
-    Coordinate p2 = this->getEndPoint(segment); 
+    Coordinate p1 = this->GetStartingPoint(segment);
+    Coordinate p2 = this->GetEndPoint(segment); 
     return std::sqrt(std::pow(71.500 * (p1[0] - p2[0]), 2) + std::pow(111.300 * (p1[1] - p2[1]), 2));
 }
 
-double RiverSegment::getTotalLength() const
+double RiverSegment::GetTotalLength() const
 {
-    double totalLength = 0.0;
-    for(int i = 0; i < this->getNumberOfSegments(); i++)
+    double TotalLength = 0.0;
+    for (int i = 0; i < this->GetNumberOfSegments(); i++)
     {
-        Coordinate p1 = this->getStartingPoint(i);
-        Coordinate p2 = this->getEndPoint(i); 
-        totalLength += std::sqrt(std::pow(71.5 * (p1[0] - p2[0]), 2) + std::pow(111.3 * (p1[1] - p2[1]), 2)); 
+        Coordinate p1 = this->GetStartingPoint(i);
+        Coordinate p2 = this->GetEndPoint(i); 
+        TotalLength += std::sqrt(std::pow(71.5 * (p1[0] - p2[0]), 2) + std::pow(111.3 * (p1[1] - p2[1]), 2)); 
     }
-    return totalLength;
+    return TotalLength;
 }
 
-double RiverSegment::getGeologicalLength() const
+double RiverSegment::GetGeologicalLength() const
 {
-    double geologicalLengthFeature = feature->GetFieldAsDouble("LENGTH_KM");
-    double lengthCurrentSegment = this->getLength();
-    double totalLength = this->getTotalLength(); 
-    return (lengthCurrentSegment / totalLength) * geologicalLengthFeature;
+    double GeologicalLengthFeature = feature->GetFieldAsDouble("LENGTH_KM");
+    double LengthCurrentSegment = this->GetLength();
+    double TotalLength = this->GetTotalLength(); 
+    return (LengthCurrentSegment / TotalLength) * GeologicalLengthFeature;
 }
 
-double RiverSegment::getDischarge() const
+double RiverSegment::GetDischarge() const
 {
     return feature->GetFieldAsDouble("DIS_AV_CMS");
 }
 
-Coordinate RiverSegment::getStartingPoint(int seg) const
+Coordinate RiverSegment::GetStartingPoint(int seg) const
 {
     int count = 0;
     Coordinate p;
-    for(int i = 0; i < segment_points.size(); i += 2)
+    for (int i = 0; i < SegmentPoints.size(); i += 2)
     {
-        if(count == seg)
+        if (count == seg)
         {
-            p = segment_points[i];
+            p = SegmentPoints[i];
             break;
         }
         count += 1;
@@ -218,15 +221,15 @@ Coordinate RiverSegment::getStartingPoint(int seg) const
     return p;
 }
 
-Coordinate RiverSegment::getEndPoint(int seg) const
+Coordinate RiverSegment::GetEndPoint(int seg) const
 {
     int count = 0;
     Coordinate p;
-    for(int i = 1; i < segment_points.size(); i += 2)
+    for (int i = 1; i < SegmentPoints.size(); i += 2)
     {
-        if(count == seg)
+        if (count == seg)
         {
-            p = segment_points[i];
+            p = SegmentPoints[i];
             break;
         }
         count += 1;
@@ -234,9 +237,9 @@ Coordinate RiverSegment::getEndPoint(int seg) const
     return p;
 }
 
-bool RiverSegment::hasDownstreamSegment() const
+bool RiverSegment::HasDownstreamSegment() const
 {
-    if (segment == this->getNumberOfSegments() - 1)
+    if (segment == this->GetNumberOfSegments() - 1)
     {
         if (feature->GetFieldAsInteger("NEXT_DOWN") == 0 || feature->GetFieldAsInteger("ENDORHEIC") == 1)
         {
@@ -246,34 +249,34 @@ bool RiverSegment::hasDownstreamSegment() const
     return true;
 }
 
-OGRFeature* RiverSegment::searchFeature(unsigned int NEXT_DOWN_ID) const
+OGRFeature* RiverSegment::SearchFeature(unsigned int NextDownID) const
 {
     layer->ResetReading();
-    std::string query = "HYRIV_ID = " + std::to_string(NEXT_DOWN_ID);
+    std::string query = "HYRIV_ID = " + std::to_string(NextDownID);
     layer->SetAttributeFilter(query.c_str());
     return layer->GetNextFeature(); 
 }
 
-RiverSegment RiverSegment::getDownstreamSegment()
+RiverSegment RiverSegment::GetDownstreamSegment()
 {
-    if (!this->hasDownstreamSegment())
+    if (!this->HasDownstreamSegment())
     {
         throw std::runtime_error("No more downstream segments for current segment.");
     }
 
     OGRFeature* f;
-    int newSegmentId;
-    if (this->segment < this->getNumberOfSegments() - 1)
+    int NewSegmentId;
+    if (this->segment < this->GetNumberOfSegments() - 1)
     {
         f = feature;
-        newSegmentId = this->segment + 1;
+        NewSegmentId = this->segment + 1;
     } 
     else
     {
-        f = this->searchFeature(feature->GetFieldAsInteger("NEXT_DOWN"));
-        newSegmentId = 0;
+        f = this->SearchFeature(feature->GetFieldAsInteger("NEXT_DOWN"));
+        NewSegmentId = 0;
     }
     
-    RiverSegment s(f, newSegmentId);
+    RiverSegment s(f, NewSegmentId);
     return s;
 }
