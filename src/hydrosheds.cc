@@ -1,7 +1,5 @@
 #include "hydrosheds/hydrosheds.hh"
 
-#include "ogrsf_frmts.h"
-
 #include <iostream>
 #include <cmath>
 #include <iomanip>

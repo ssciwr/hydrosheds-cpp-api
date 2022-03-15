@@ -3,9 +3,10 @@
 
 using namespace hydrosheds;
 
-std::string path = "/Users/anirudh/Documents/Internship-Hydrosheds/HydroRIVERS_v10_as.gdb";
-HydroshedsDataSet D(path, 0);
-RiverSegment R = D.ConstructSegment();	
+std::string path = "../../tests/test_data/HydroRIVERS_v10_gr.gdb/HydroRIVERS_v10_gr.gdb";
+
+HydroshedsDataSet D(path.c_str());
+RiverSegment R = D.ConstructSegment(30);	
 
 /* -- DATASET TESTS -- */
 TEST_CASE("Test shape", "[dataset]")
@@ -24,7 +25,7 @@ TEST_CASE("River segment subsegments.", "[RiverSegment]")
 {
 	
     RiverSegment R1 = R;
-    for(int i = 1; i < 100; i++)
+    for(int i = 1; i < 20; i++)
     {
 		R1 = R1.getDownstreamSegment();
 		
@@ -46,7 +47,7 @@ TEST_CASE("River segment subsegments.", "[RiverSegment]")
 		SECTION("Check number of subsegments.")
 		{
 			// CAPTURE(R.get_number_of_subsegments());
-			REQUIRE(R1.get_number_of_subsegments() > 0);
+			REQUIRE(R1.getNumberOfSegments() > 0);
 		}
 
 		SECTION("Discharge.")

@@ -10,6 +10,8 @@ The main interface allows ones to interact with `.gdb` and `.shp` files. One can
 
 The rasterisation framework allows one to render the data specified by constructing the `RiverSegment`.
 
+Add example of downstream iteration.
+
 .. doxygenclass:: hydrosheds::HydroshedsDataSet
    :members:
 
