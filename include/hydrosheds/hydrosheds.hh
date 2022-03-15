@@ -40,7 +40,7 @@ namespace hydrosheds
 		 * @param l_num is the layer number to be initailised.
 		 * Defaults to 0 (first layer).
 		 */  
-		HydroshedsDataSet(const std::string&, const int layerNumber = 1);
+		HydroshedsDataSet(const std::string&, const int layerNumber = 0);
 
 		/** @brief Get dataset dimensions
 		 * Returns the size of the dataset as an 
