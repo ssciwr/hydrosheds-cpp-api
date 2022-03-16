@@ -1,8 +1,5 @@
 #include "hydrosheds/hydrosheds.hh"
 
-#include <iostream>
-#include <cmath>
-#include <iomanip>
 
 using namespace hydrosheds;
 
@@ -25,7 +22,7 @@ HydroshedsDataSet::HydroshedsDataSet(const std::string& path, const int LayerNum
         std::cout << "Dataset contains more than one layer." << "\n";
         std::cout << "Initialising to layer " << LayerNumber << "." << std::endl;
     }
-    
+
     layer = data->GetLayer(LayerNumber);
 
 }

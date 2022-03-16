@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     // RiverSegment R = D.ConstructSegment(-100.0, -50.0, 100.0, 50.0, false, 3);
     // std::cout << "Shape: " << "(" << D.shape()[0] 
     //             << ", "  << D.shape()[1] << ")" << std::endl;
-    RiverSegment R = D.ConstructSegment(100);
+    RiverSegment R = D.ConstructSegment();
    
                 
     // std::cout << "SUMMARY" << std::endl;

@@ -7,9 +7,10 @@
 #include <tuple>
 #include <vector>
 #include <stdexcept>
+#include <cmath>
+#include <iostream>
 
 /** @brief hydrosheds primary namespace
- *
  * Used to construct an object of the hydrosheds data.
  * Requires the dataset to be in .gdb format.
  * Can be downloaded from https://www.hydrosheds.org/.
@@ -28,51 +29,51 @@ namespace hydrosheds
 	class HydroshedsDataSet
 	{
 		public:
-		/** @brief main constructor
-		 * Default constructor.
-		 */ 
-		HydroshedsDataSet() = default;
+			/** @brief main constructor
+			 * Default constructor.
+			 */ 
+			HydroshedsDataSet() = default;
 
-		/** @brief Primary constructor
-		 * Initialises the dataset using an input path from the command line.
-		 * @param path Path to file.
-		 * @param LayerNumber is the layer number to be initailised.
-		 * Defaults to 0 (first layer).
-		 */  
-		HydroshedsDataSet(const std::string&, const int = 0);
+			/** @brief Primary constructor
+			 * Initialises the dataset using an input path from the command line.
+			 * @param path Path to file.
+			 * @param LayerNumber is the layer number to be initailised.
+			 * Defaults to 0 (first layer).
+			 */  
+			HydroshedsDataSet(const std::string&, const int = 0);
 
-		/** @brief Get dataset dimensions
-		 * Returns the size of the dataset as an 
-		 * array (#features, #column_fields).
-		 */  
-		std::array <unsigned long long, 2> shape() const;
+			/** @brief Get dataset dimensions
+			 * Returns the size of the dataset as an 
+			 * array (#features, #column_fields).
+			 */  
+			std::array <unsigned long long, 2> shape() const;
 
-		/** @brief Field names in dataset
-		 * Prints the column names in the dataset.
-		 * @returns number of columns in the dataset.
-		 */  
-		int FeatureAttributes() const;
+			/** @brief Field names in dataset
+			 * Prints the column names in the dataset.
+			 * @returns number of columns in the dataset.
+			 */  
+			int FeatureAttributes() const;
 
 
-		/** @brief Gives the spatial reference format name
-		 * of the initialised layer.
-		 * @returns string as the format name.
-		 */ 
-		std::string GetSpatialReferenceName() const;
+			/** @brief Gives the spatial reference format name
+			 * of the initialised layer.
+			 * @returns string as the format name.
+			 */ 
+			std::string GetSpatialReferenceName() const;
 
-		/** @brief Access to the subsegments of each feature.
-		 * Constructs an instance of the subsegment interface.
-		 * By defeault the contructor holds the passes the first subsegment  
-		 * of the first feature in the dataset. 
-		 * @param FeatureIndex can be used to specify which feature (according  * to the FID (defined in the GDAL documentation)) will be constructed. 
-		 * ( @param XMin, @param YMin) and ( @param XMax, @param YMax)
-		 * are used to specify the lower left and upper right 
-		 * corners of the rectangle. They are by default @c 0.
-		 * @param restriction is used to specify whether a
-		 * restriction to a rectangular region
-		 * should be applied. It is by default @c false.
-		 */
-		RiverSegment ConstructSegment(const int = 1, bool = false, double = 0.0, double = 0.0, double = 0.0, double = 0.0) const;
+			/** @brief Access to the subsegments of each feature.
+			 * Constructs an instance of the subsegment interface.
+			 * By defeault the contructor holds the passes the first subsegment  
+			 * of the first feature in the dataset. 
+			 * @param FeatureIndex can be used to specify which feature (according  * to the FID (defined in the GDAL documentation)) will be constructed. 
+			 * ( @param XMin, @param YMin) and ( @param XMax, @param YMax)
+			 * are used to specify the lower left and upper right 
+			 * corners of the rectangle. They are by default @c 0.
+			 * @param restriction is used to specify whether a
+			 * restriction to a rectangular region
+			 * should be applied. It is by default @c false.
+			 */
+			RiverSegment ConstructSegment(const int = 1, bool = false, double = 0.0, double = 0.0, double = 0.0, double = 0.0) const;
 
 		private:
 			GDALDataset* data;
@@ -221,9 +222,3 @@ namespace hydrosheds
 	};
 
 } 
-
-/* -- CONSIDERATIONS -- */
-// Fuzzy conversion from coordinates to ID.
-// Use a map as a data structure to keep track of vertices.
-// Inflow and Outflow defined in boundary vertices. 
-// 
