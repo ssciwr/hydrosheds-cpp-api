@@ -23,11 +23,56 @@ The rasterisation framework allows one to render the data specified by construct
    :members:
 
 Examples
---------
-Iterating downstream.
-.. code-block:: c++
+========
 
-   HydroshedsDataSet D(<path_to_dataset>, 0);
+Iterating Over the Dataset
+--------------------------
+
+In order for iterating over the Dataset, you have to initialize the Dataset, which can be done as follows:
+
+.. code-block:: C++
+
+   HydroshedsDataSet D(<path_to_dataset>);
+
+For iterating over the dataset do the following:
+
+.. code-block:: C++
+
+   for(const auto& it : D)
+    {
+        // do something...
+        std::cout << it.getGeologicalLength() << std::endl;
+    }
+
+
+.. warning::
+    It is important that the usage of the iterator class should be restricted to the case that the iteration object is called by reference (when using ranged-based loops). You are allowed to use the fully C++ implementation of the for loop.
+
+    Otherwise error can and probably will occur!
+
+Other possibilites are:
+
+.. code-block:: C++
+
+   for(auto& it : D)
+    {
+        std::cout << it.getGeologicalLength() << std::endl;
+    }
+
+or
+
+.. code-block:: C++
+
+   for(auto it = D.begin(); it!=D.end(); it++)
+    {
+        std::cout << it->getGeologicalLength() << std::endl;
+    }
+
+Iterating downstream
+--------------------
+.. code-block:: C++
+
+   HydroshedsDataSet D(<path_to_dataset>);
    RiverSegment R = D.ConstructSegment(100);
    RiverSegment R1 = R;
    for (int i = 1; i < 20; i++)
@@ -37,4 +82,6 @@ Iterating downstream.
       std::cout << "Feature index: " << R1.GetFeatureIndex() << std::endl;
       std::cout << "Current subsegment: " << R1.GetCurrentSegment() << std::endl; 
    }
+
+
 
