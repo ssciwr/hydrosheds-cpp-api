@@ -22,6 +22,9 @@ The rasterisation framework allows one to render the data specified by construct
 .. doxygenclass:: hydrosheds::RiverSegment
    :members:
 
+.. doxygenclass:: hydrosheds::FullDatasetRiverSegmentIterator
+   :members:
+
 Examples
 ========
 
