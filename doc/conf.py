@@ -60,7 +60,7 @@ html_static_path = []
 # Breathe Configuration: Breathe is the bridge between the information extracted
 # from the C++ sources by Doxygen and Sphinx.
 breathe_projects = {}
-breathe_default_project = "hydrosheds-cpp-api"
+breathe_default_project = "hydrosheds"
 
 # Check if we're running on Read the Docs' servers
 read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'

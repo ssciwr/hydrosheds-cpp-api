@@ -24,7 +24,9 @@ The rasterisation framework allows one to render the data specified by construct
 
 Examples
 --------
+Iterating downstream.
 .. code-block:: c++
+
    HydroshedsDataSet D(<path_to_dataset>, 0);
    RiverSegment R = D.ConstructSegment(100);
    RiverSegment R1 = R;
