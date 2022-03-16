@@ -60,7 +60,7 @@ RiverSegment HydroshedsDataSet::ConstructSegment(const int FeatureIndex,
     	                                        double XMax, double YMax) const
 {
     layer->SetSpatialFilter(NULL);
-    layer->ResetReading();
+    /* layer->ResetReading(); */
 
     if (restriction)
     {
@@ -82,8 +82,8 @@ RiverSegment HydroshedsDataSet::ConstructSegment(const int FeatureIndex,
 FullDatasetRiverSegmentIterator HydroshedsDataSet::begin() const
 {
     layer->ResetReading();
-    auto feature = layer->GetNextFeature();
-    return FullDatasetRiverSegmentIterator((*this), feature);
+    OGRFeature* feature = layer->GetNextFeature();
+    return FullDatasetRiverSegmentIterator(*this, feature);
 }
 
 FullDatasetRiverSegmentIterator HydroshedsDataSet::end() const
@@ -103,6 +103,7 @@ RiverSegment::RiverSegment(OGRFeature* f, int SegNum)
     {
         SegmentPoints.clear();
     }
+
     std::string ls = "LINESTRING";
     std::string mls = "MULTILINESTRING";
     std::string CurrentGeometryName = geometry->getGeometryName();
@@ -298,15 +299,16 @@ RiverSegment RiverSegment::GetDownstreamSegment()
 /* -- FullDatasetRiverSegmentIterator Class -- */
 // ---------------------------------------------------------
 FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator()
-        : feature(NULL)
+    : feature(NULL)
 {}
 
-FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(HydroshedsDataSet hydroshedsDataSet,OGRFeature* feature)
-: segment(hydroshedsDataSet.ConstructSegment())
+FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(HydroshedsDataSet hydroshedsDataSet, OGRFeature* feature)
+    : segment(hydroshedsDataSet.ConstructSegment())
 {
     this->segment.feature = feature;
     this->feature = feature;
 }
+
 
 // Prefix increment
 FullDatasetRiverSegmentIterator FullDatasetRiverSegmentIterator::operator++()

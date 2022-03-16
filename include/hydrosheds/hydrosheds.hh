@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ogrsf_frmts.h"
-
 #include <array>
 #include <string>
 #include <tuple>
@@ -10,12 +8,13 @@
 #include <cmath>
 #include <iostream>
 
+#include "ogrsf_frmts.h"
+
 /** @brief hydrosheds primary namespace
  * Used to construct an object of the hydrosheds data.
- * Requires the dataset to be in .gdb format.
+ * Requires the dataset to be in .gdb/shp format.
  * Can be downloaded from https://www.hydrosheds.org/.
  */
-
 namespace hydrosheds 
 {
     using Coordinate = std::array <double, 2>;
@@ -82,7 +81,8 @@ namespace hydrosheds
              */
             FullDatasetRiverSegmentIterator begin() const;
 
-            /** @brief This method returns the last iterator of the HydroShedsDataSet class
+            /** @brief This method returns the last iterator of the
+             * HydroShedsDataSet class.
              * @returns FullDatasetRiverSegmentIterator.
              */
             FullDatasetRiverSegmentIterator end() const;
@@ -233,73 +233,73 @@ namespace hydrosheds
         friend class FullDatasetRiverSegmentIterator;
     };
 
-    struct FullDatasetRiverSegmentIterator
+    class FullDatasetRiverSegmentIterator
     {
-        RiverSegment segment;
-        OGRFeature* feature;
+        public:
+            RiverSegment segment;
+            OGRFeature* feature;
 
-        /**
-         * @brief This constructor builds an object of the FullDatasetRiverSegment class using the @c HydroshedsDataSet
-         * as a parameter. It is only be used by the end() method from the HydroshedsDataSet class
-         */
-        FullDatasetRiverSegmentIterator();
-
-
-        /** @brief  Constructor using a @c HydroshedsDataSet object and @c OGRFeature for constructing.
-         * The main purpose of this constructor is for using this for the @c end method of the @c HydroshedsDataSet
-         *
-         *  @param HydroshedsDataSet
-         *
-         *  @param OGRFeature
-         */
-        FullDatasetRiverSegmentIterator(HydroshedsDataSet, OGRFeature*);
+            /**
+             * @brief This constructor builds an object of the FullDatasetRiverSegment class using the @c HydroshedsDataSet
+             * as a parameter. It is only be used by the end() method from the HydroshedsDataSet class
+             */
+            FullDatasetRiverSegmentIterator();
 
 
-        /**
-         * @brief Prefix incrementation for incrementing the current object and getting the NextFeature.
-         * Note: If trying to use this for the last Feature for the dataset pointing to NULL, errors may occur
-         * @returns the incremented FullDatasetRiverSegmentIterator
-         */
-        FullDatasetRiverSegmentIterator operator++();
+            /** @brief  Constructor using a @c HydroshedsDataSet object and @c OGRFeature for constructing.
+             * The main purpose of this constructor is for using this for the @c end method of the @c HydroshedsDataSet
+             *
+             *  @param HydroshedsDataSet
+             *
+             *  @param OGRFeature
+             */
+            FullDatasetRiverSegmentIterator(HydroshedsDataSet, OGRFeature*);
 
 
-        /**
-         * @brief Postfix incrementation for incrementing the current object and return the the object afterwards.
-         *
-         * Note: If trying to use this for the last Feature for the dataset pointing to NULL, errors may occur
-         * @returns the current FullDatasetRiverSegmentIterator first and then increments the object afterwards
-         */
-        FullDatasetRiverSegmentIterator operator++(int);
+            /**
+             * @brief Prefix incrementation for incrementing the current object and getting the NextFeature.
+             * Note: If trying to use this for the last Feature for the dataset pointing to NULL, errors may occur
+             * @returns the incremented FullDatasetRiverSegmentIterator
+             */
+            FullDatasetRiverSegmentIterator operator++();
 
 
-        /**
-         * @brief points to segment of the @c FullDatasetRiverSegmentIterator
-         * @return pointer to the segment
-         */
-        RiverSegment* operator->();
-
-        /** @brief A reference to the segment of the FullDatasetRiverSegmentIterator
-         *
-         * @return reference to reference to the segment
-         */
-        RiverSegment& operator*();
+            /**
+             * @brief Postfix incrementation for incrementing the current object and return the the object afterwards.
+             *
+             * Note: If trying to use this for the last Feature for the dataset pointing to NULL, errors may occur
+             * @returns the current FullDatasetRiverSegmentIterator first and then increments the object afterwards
+             */
+            FullDatasetRiverSegmentIterator operator++(int);
 
 
-        /** @brief comparison operator
-         *
-         * @param a an Iterator from the class FullDatasetRiverSegmentIterator
-         * @returns whether or not this Iterator is equal to a or not
-         */
-        bool operator==(const FullDatasetRiverSegmentIterator& a);
+            /**
+             * @brief points to segment of the @c FullDatasetRiverSegmentIterator
+             * @return pointer to the segment
+             */
+            RiverSegment* operator->();
+
+            /** @brief A reference to the segment of the FullDatasetRiverSegmentIterator
+             *
+             * @return reference to reference to the segment
+             */
+            RiverSegment& operator*();
 
 
-        /** @brief comparison operator
-         *
-         * @param a an Iterator from the class FullDatasetRiverSegmentIterator
-         * @returns whether or not this Iterator is equal to a or not
-         */
+            /** @brief comparison operator
+             *
+             * @param a an Iterator from the class FullDatasetRiverSegmentIterator
+             * @returns whether or not this Iterator is equal to a or not
+             */
+            bool operator==(const FullDatasetRiverSegmentIterator& a);
 
-        bool operator!=(const FullDatasetRiverSegmentIterator& a);
+
+            /** @brief comparison operator
+             *
+             * @param a an Iterator from the class FullDatasetRiverSegmentIterator
+             * @returns whether or not this Iterator is equal to a or not
+             */
+
+            bool operator!=(const FullDatasetRiverSegmentIterator& a);
     };
-
 } 

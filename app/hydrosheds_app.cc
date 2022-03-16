@@ -1,5 +1,4 @@
 #include "hydrosheds/hydrosheds.hh"
-#include <iostream>
 
 using namespace hydrosheds;
 
@@ -25,24 +24,24 @@ int main(int argc, char** argv)
     // std::cout << "Shape: " << "(" << D.shape()[0] 
     //             << ", "  << D.shape()[1] << ")" << std::endl;
 
-    std::cout << "Dataset iteration." << std::endl;
+    RiverSegment R = D.ConstructSegment(50);
+    std::cout << "---- DATASET ITERATION ----" << std::endl;
+    // auto seg = D.begin();
     for (const auto& seg : D)
     {
-        std::cout << seg.GetFeatureIndex() << "\n";
+        std::cout << seg.GetGeologicalLength() << "\n";
     }
-
-   
-                
+    // std::cout << std::endl;
+          
     // std::cout << "SUMMARY" << std::endl;
     // R.summary(true);
     
-    RiverSegment R = D.ConstructSegment(50);
-    std::cout << "LENGTHS ------" << std::endl;
-    std::cout << R.GetLength() << std::endl;
-    std::cout << R.GetTotalLength() << std::endl;
-    std::cout << R.GetGeologicalLength() << std::endl;
+    // std::cout << "LENGTHS ------" << std::endl;
+    // std::cout << R.GetLength() << std::endl;
+    // std::cout << R.GetTotalLength() << std::endl;
+    // std::cout << R.GetGeologicalLength() << std::endl;
     
-    std::cout << "DOWNSTREAM ITERATION ------" << std::endl;
+    std::cout << "---- DOWNSTREAM ITERATION ----" << std::endl;
     RiverSegment R1 = R;
     for(int i = 1; i < 20; i++)
     {
