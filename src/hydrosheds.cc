@@ -6,7 +6,9 @@ using namespace hydrosheds;
 // static layer declaration for RiverSegment.
 OGRLayer* RiverSegment::layer;
 
-/* -- CLASS HYDROSHEDS DATA SET -- */
+// ---------------------------------------------------------
+/* -- HydroshedsDataSet Class -- */
+// ---------------------------------------------------------
 HydroshedsDataSet::HydroshedsDataSet(const std::string& path, const int LayerNumber)
 {
     GDALAllRegister();
@@ -77,7 +79,21 @@ RiverSegment HydroshedsDataSet::ConstructSegment(const int FeatureIndex,
     return s;
 }
 
-/* -- CLASS RIVER SEGMENT -- */
+FullDatasetRiverSegmentIterator HydroshedsDataSet::begin() const
+{
+    layer->ResetReading();
+    auto feature = layer->GetNextFeature();
+    return FullDatasetRiverSegmentIterator((*this), feature);
+}
+
+FullDatasetRiverSegmentIterator HydroshedsDataSet::end() const
+{
+    return FullDatasetRiverSegmentIterator();
+}
+
+// ---------------------------------------------------------
+/* -- RiverSegment Class -- */
+// ---------------------------------------------------------
 RiverSegment::RiverSegment(OGRFeature* f, int SegNum)
     : feature(f), segment(SegNum)
 {
@@ -276,4 +292,62 @@ RiverSegment RiverSegment::GetDownstreamSegment()
     
     RiverSegment s(f, NewSegmentId);
     return s;
+}
+
+// ---------------------------------------------------------
+/* -- FullDatasetRiverSegmentIterator Class -- */
+// ---------------------------------------------------------
+FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator()
+        : feature(NULL)
+{}
+
+FullDatasetRiverSegmentIterator::FullDatasetRiverSegmentIterator(HydroshedsDataSet hydroshedsDataSet,OGRFeature* feature)
+: segment(hydroshedsDataSet.ConstructSegment())
+{
+    this->segment.feature = feature;
+    this->feature = feature;
+}
+
+// Prefix increment
+FullDatasetRiverSegmentIterator FullDatasetRiverSegmentIterator::operator++()
+{
+    auto nextFeature = this->segment.layer->GetNextFeature();
+    this->segment.feature = nextFeature;
+    this->feature = nextFeature;
+    return *this;
+}
+
+// Postfix increment
+FullDatasetRiverSegmentIterator FullDatasetRiverSegmentIterator::operator++(int)
+{
+
+    FullDatasetRiverSegmentIterator result = (*this);
+    auto nextFeature = this->segment.layer->GetNextFeature();
+    this->segment.feature = nextFeature;
+    this->feature = nextFeature;
+    return result;
+}
+
+// Two implementations for the comparison operators
+bool FullDatasetRiverSegmentIterator::operator==(const FullDatasetRiverSegmentIterator& a)
+{
+    // pointer equality
+    return this->feature == a.feature;
+}
+
+
+bool FullDatasetRiverSegmentIterator::operator!=(const FullDatasetRiverSegmentIterator& a)
+{
+    return !this->operator==(a);
+}
+
+
+RiverSegment* FullDatasetRiverSegmentIterator::operator->()
+{
+    return &segment;
+}
+
+RiverSegment& FullDatasetRiverSegmentIterator::operator*()
+{
+    return segment;
 }

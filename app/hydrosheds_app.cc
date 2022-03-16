@@ -12,24 +12,31 @@ int main(int argc, char** argv)
     }
 
     // Initialise the data set.
-    HydroshedsDataSet D(argv[1], 0);
+    HydroshedsDataSet D(argv[1]);
 
     // Initial testing
-    std::cout << "Shape: " << "(" << D.shape()[0] << ", "  << D.shape()[1] << ")" << std::endl;
+    std::cout << "Shape of dataset: " << "(" << D.shape()[0] << ", "  << D.shape()[1] << ")" << std::endl;
 
     // Fields in the dataset.
-    D.FeatureAttributes();
+    // D.FeatureAttributes();
 
     // Initialise a river segment object.
     // RiverSegment R = D.ConstructSegment(-100.0, -50.0, 100.0, 50.0, false, 3);
     // std::cout << "Shape: " << "(" << D.shape()[0] 
     //             << ", "  << D.shape()[1] << ")" << std::endl;
-    RiverSegment R = D.ConstructSegment();
+
+    std::cout << "Dataset iteration." << std::endl;
+    for (const auto& seg : D)
+    {
+        std::cout << seg.GetFeatureIndex() << "\n";
+    }
+
    
                 
     // std::cout << "SUMMARY" << std::endl;
-    R.summary(true);
+    // R.summary(true);
     
+    RiverSegment R = D.ConstructSegment(50);
     std::cout << "LENGTHS ------" << std::endl;
     std::cout << R.GetLength() << std::endl;
     std::cout << R.GetTotalLength() << std::endl;
