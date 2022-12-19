@@ -1,7 +1,7 @@
 # Welcome to HydroSheds C++ API
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ssciwr/hydrosheds-cpp-api/CI)](https://github.com/dokempf/hydrosheds-cpp-api/actions?query=workflow%3ACI)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ssciwr/hydrosheds-cpp-api/ci.yml?branch=main)](https://github.com/dokempf/hydrosheds-cpp-api/actions/workflows/ci.yml)
 [![Documentation Status](https://readthedocs.org/projects/hydrosheds-cpp-api/badge/)](https://hydrosheds-cpp-api.readthedocs.io/)
 
 *This repository is currently under development. If you are interested in the result, check back in a few months.*
